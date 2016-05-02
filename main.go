@@ -123,10 +123,10 @@ func main() {
 		applicationRenderer.Clear()
 
 		background1.Draw(applicationRenderer)
-		background2.Draw(renapplicationRendererderer)
-		background3.Draw(renapplicationRendererderer)
-		player.Draw(renderapplicationRendererer)
-		game.Draw(rendeapplicationRendererrer)
+		background2.Draw(applicationRenderer)
+		background3.Draw(applicationRenderer)
+		player.Draw(applicationRenderer)
+		game.Draw(applicationRenderer)
 
 		if levelTexture != nil && levelTimeLeft > 0.0 {
 			rect := &sdl.Rect{
