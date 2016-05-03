@@ -16,6 +16,9 @@ var (
 	asteroidVelocityIncrement      float32 = 0.01
 	
 	minDelayBetweenAsteroids float32 = 500.0
+
+	asteroidMinDamage int = 5
+	asteroidMaxDamage int = 10
 )
 
 type Asteroid struct {
@@ -27,7 +30,7 @@ type Asteroid struct {
 	word      string
 }
 
-type AsteroidNotDestroyed func()
+type AsteroidNotDestroyed func(int)
 type NextLevel            func(int)
 
 type Game struct {
@@ -49,6 +52,12 @@ func NewAsteroid(x, y, velocity float32) *Asteroid {
 	asteroid.y = y
 	asteroid.velocity = velocity
 	return asteroid
+}
+
+func (asteroid *Asteroid) Damage() int {
+	damage := rand.Intn(asteroidMaxDamage - asteroidMinDamage)
+	damage += asteroidMinDamage
+	return damage
 }
 
 func (asteroid *Asteroid) IsAlive() bool {
@@ -136,7 +145,7 @@ func (game *Game) Update(deltaTime float32) {
 				allAsteroidsDead = false
 			} else {
 				if game.asteroidNotDestroyed != nil {
-					game.asteroidNotDestroyed()
+					game.asteroidNotDestroyed(asteroid.Damage())
 				}
 			}
 		}

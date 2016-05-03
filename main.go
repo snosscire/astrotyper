@@ -19,14 +19,21 @@ var (
 	
 	applicationRenderer *sdl.Renderer
 	applicationRunning  bool
+	gamePaused          bool
+	gameOver            bool
 	
-	levelFontSize      int = 92
-	levelFont          *ttf.Font
-	levelTexture       *sdl.Texture
-	levelTextureWidth  int32
-	levelTextureHeight int32
-	levelTimeToShow    float32 = 2500.0
-	levelTimeLeft      float32
+	overlayLevel *Text
+	hudEarth     *Text
+
+	hudFontSize     int = 32
+	hudMarginRight  int32 = 16
+	hudMarginBottom int32 = 8
+
+	levelFontSize   int = 92
+	levelTimeToShow float32 = 2500.0
+	levelTimeLeft   float32
+
+	currentPlayer *Player
 )
 
 func handleEvents() {
@@ -42,26 +49,21 @@ func handleEvents() {
 	}
 }
 
-func handleAsteroidNotDestroyed() {
-	fmt.Println("Asteroid not destroyed!")
+func handleAsteroidNotDestroyed(damage int) {
+	currentPlayer.TakeDamage(damage)
+	text := fmt.Sprintf("Earth: %d%%", currentPlayer.CurrentHealth())
+	hudEarth.Update(text, applicationRenderer)
+
+	if currentPlayer.CurrentHealth() == 0 {
+		gameOver = true
+		levelTimeLeft = 0.0
+	}
 }
 
 func handleNextLevel(level int) {
 	text := fmt.Sprintf("Level %d", level)
-	surface, err := levelFont.RenderUTF8_Blended(text, sdl.Color{255, 255, 255, 255})
-	if err == nil {
-		levelTextureWidth = surface.W
-		levelTextureHeight = surface.H
-		if levelTexture != nil {
-			levelTexture.Destroy()
-			levelTexture = nil
-		}
-		levelTexture, err = applicationRenderer.CreateTextureFromSurface(surface)
-		surface.Free()
-		if levelTexture != nil && err == nil {
-			levelTimeLeft = levelTimeToShow
-		}
-	}
+	overlayLevel.Update(text, applicationRenderer)
+	levelTimeLeft = levelTimeToShow
 }
 
 func init() {
@@ -95,16 +97,19 @@ func main() {
 	}
 	defer applicationRenderer.Destroy()
 
-	levelFont, err = ttf.OpenFont(fontPath, levelFontSize)
-	if err != nil {
-		panic(err)
-	}
+	hudEarth = NewText(fontPath, hudFontSize)
+	hudEarth.Update("Earth: 100%", applicationRenderer)
+
+	overlayLevel = NewText(fontPath, levelFontSize)
 	handleNextLevel(1)
+
+	overlayGameOver := NewText(fontPath, levelFontSize)
+	overlayGameOver.Update("GAME OVER", applicationRenderer)
 
 	background1 := NewBackground(100, 1, 1, 0.2)
 	background2 := NewBackground(10, 1, 1, 0.3)
 	background3 := NewBackground(1, 4, 4, 0.4)
-	player := NewPlayer(applicationRenderer)
+	currentPlayer = NewPlayer(applicationRenderer)
 	game := NewGame()
 
 	game.Start(handleAsteroidNotDestroyed, handleNextLevel)
@@ -121,11 +126,13 @@ func main() {
 
 		handleEvents()
 
-		background1.Update(deltaTime)
-		background2.Update(deltaTime)
-		background3.Update(deltaTime)
-		player.Update(deltaTime)
-		game.Update(deltaTime)
+		if !gamePaused && !gameOver {
+			background1.Update(deltaTime)
+			background2.Update(deltaTime)
+			background3.Update(deltaTime)
+			currentPlayer.Update(deltaTime)
+			game.Update(deltaTime)
+		}
 
 		applicationRenderer.SetDrawColor(0, 0, 0, 255)
 		applicationRenderer.Clear()
@@ -133,23 +140,30 @@ func main() {
 		background1.Draw(applicationRenderer)
 		background2.Draw(applicationRenderer)
 		background3.Draw(applicationRenderer)
-		player.Draw(applicationRenderer)
+		currentPlayer.Draw(applicationRenderer)
 		game.Draw(applicationRenderer)
 
-		if levelTexture != nil && levelTimeLeft > 0.0 {
-			rect := &sdl.Rect{
-				(ScreenWidth/2)-(levelTextureWidth/2),
-				(ScreenHeight/3)-(levelTextureHeight/2),
-				levelTextureWidth,
-				levelTextureHeight}
-			applicationRenderer.Copy(levelTexture, nil, rect)
+		//hudEarth.Draw(applicationRenderer)
+
+		if levelTimeLeft > 0.0 {
+			overlayLevel.Draw(applicationRenderer,
+				(ScreenWidth/2)-(overlayLevel.Width()/2),
+				(ScreenHeight/3)-(overlayLevel.Height()/2))
 			levelTimeLeft -= deltaTime
 		}
+		if gameOver {
+			overlayGameOver.Draw(applicationRenderer,
+				(ScreenWidth/2)-(overlayGameOver.Width()/2),
+				(ScreenHeight/3)-(overlayGameOver.Height()/2))
+		}
+		hudEarth.Draw(applicationRenderer,
+			ScreenWidth-hudEarth.Width()-hudMarginRight,
+			ScreenHeight-hudEarth.Height()-hudMarginBottom)
 
 		applicationRenderer.Present()
 	}
 
-	levelFont.Close()
+	//levelFont.Close()
 
 	ttf.Quit()
 	img.Quit()

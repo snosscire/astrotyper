@@ -6,6 +6,7 @@ import (
 )
 
 var (
+	playerStartHealth    int = 100
 	playerTexturePath    string = "resources/player.png"
 	playerTextureWidth   int32 = 64
 	playerTextureHeight  int32 = 64
@@ -15,6 +16,7 @@ var (
 )
 
 type Player struct {
+	health    int
 	rectangle sdl.Rect
 	texture   *sdl.Texture
 	jetBeam   *JetBeamParticleEffect
@@ -26,6 +28,7 @@ func NewPlayer(renderer *sdl.Renderer) *Player {
 		return nil
 	}
 	player := &Player{
+		playerStartHealth,
 		sdl.Rect{
 			(ScreenWidth/2)-(playerTextureWidth/2),
 			ScreenHeight+playerOffsetY,
@@ -38,6 +41,17 @@ func NewPlayer(renderer *sdl.Renderer) *Player {
 			float32(ScreenHeight+playerOffsetY+playerJetBeamOffsetY)),
 	}
 	return player
+}
+
+func (player *Player) TakeDamage(damage int) {
+	player.health -= damage
+	if player.health < 0 {
+		player.health = 0
+	}
+}
+
+func (player *Player) CurrentHealth() int {
+	return player.health
 }
 
 func (player *Player) Draw(renderer *sdl.Renderer) {
