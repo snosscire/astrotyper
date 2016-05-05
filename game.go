@@ -17,17 +17,23 @@ var (
 	
 	minDelayBetweenAsteroids float32 = 500.0
 
-	asteroidMinDamage int = 5
-	asteroidMaxDamage int = 10
+	asteroidMinDamage   int = 5
+	asteroidMaxDamage   int = 10
+	asteroidWordMargin  int32 = 10
+	asteroidWordPadding int32 = 1
+	asteroidWordBorder  int32 = 1
 )
 
 type Asteroid struct {
-	rectangle sdl.Rect
-	alive     bool
-	x         float32
-	y         float32
-	velocity  float32
-	word      string
+	rectangle         sdl.Rect
+	alive             bool
+	x                 float32
+	y                 float32
+	velocity          float32
+	word              string
+	wordTexture       *sdl.Texture
+	wordTextureWidth  int32
+	wordTextureHeight int32
 }
 
 type AsteroidNotDestroyed func(int)
@@ -51,13 +57,34 @@ func NewAsteroid(x, y, velocity float32) *Asteroid {
 	asteroid.x = x
 	asteroid.y = y
 	asteroid.velocity = velocity
+	asteroid.word = "tobias"
+
+	surface, err := asteroidFont.RenderUTF8_Blended(asteroid.word, sdl.Color{255, 255, 255, 255})
+	if err == nil {
+		asteroid.wordTextureWidth = surface.W
+		asteroid.wordTextureHeight = surface.H
+		asteroid.wordTexture, err = applicationRenderer.CreateTextureFromSurface(surface)
+		surface.Free()
+		if err != nil {
+			asteroid.wordTexture = nil
+		}
+	}
+
 	return asteroid
+}
+
+func (asteroid *Asteroid) Word() string {
+	return asteroid.word
 }
 
 func (asteroid *Asteroid) Damage() int {
 	damage := rand.Intn(asteroidMaxDamage - asteroidMinDamage)
 	damage += asteroidMinDamage
 	return damage
+
+}
+func (asteroid *Asteroid) Destroy() {
+	asteroid.alive = false
 }
 
 func (asteroid *Asteroid) IsAlive() bool {
@@ -82,6 +109,28 @@ func (asteroid *Asteroid) Draw(renderer *sdl.Renderer) {
 	asteroid.rectangle.H = 64
 	renderer.SetDrawColor(255, 0, 0, 255)
 	renderer.FillRect(&asteroid.rectangle)
+
+	if asteroid.wordTexture != nil {
+		var wordX, wordY int32
+		var bgX, bgY, bgW, bgH int32
+		var borderX, borderY, borderW, borderH int32
+		wordX = asteroid.rectangle.X + asteroid.rectangle.W + asteroidWordMargin
+		wordY = asteroid.rectangle.Y + (asteroid.rectangle.H / 2) - (asteroid.wordTextureHeight / 2)
+		bgX = wordX - asteroidWordPadding
+		bgY = wordY - asteroidWordPadding
+		bgW = asteroid.wordTextureWidth + (asteroidWordPadding * 2)
+		bgH = asteroid.wordTextureHeight + (asteroidWordPadding * 2)
+		borderX = bgX - asteroidWordBorder
+		borderY = bgY - asteroidWordBorder
+		borderW = bgW + (asteroidWordBorder * 2)
+		borderH = bgH + (asteroidWordBorder * 2)
+
+		renderer.SetDrawColor(255, 0, 0, 255)
+		renderer.FillRect(&sdl.Rect{borderX, borderY, borderW, borderH})
+		renderer.SetDrawColor(60, 60, 60, 255)
+		renderer.FillRect(&sdl.Rect{bgX, bgY, bgW, bgH})
+		renderer.Copy(asteroid.wordTexture, nil, &sdl.Rect{wordX, wordY, asteroid.wordTextureWidth, asteroid.wordTextureHeight})
+	}
 }
 
 func NewGame() *Game {
@@ -98,6 +147,19 @@ func (game *Game) Start(asteroidNotDestroyed AsteroidNotDestroyed, nextLevel Nex
 	game.asteroidVelocity = startAsteroidVelocity
 	game.asteroidNotDestroyed = asteroidNotDestroyed
 	game.nextLevel = nextLevel
+}
+
+func (game *Game) GetMatchingAsteroid(firstCharacter string) *Asteroid {
+	if len(game.asteroids) > 0 {
+		for _, asteroid := range game.asteroids {
+			if asteroid.IsAlive() {
+				if firstCharacter == string(asteroid.word[0]) {
+					return asteroid
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func (game *Game) spawnNextAsteroid() {
