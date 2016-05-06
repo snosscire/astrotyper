@@ -12,7 +12,7 @@ var (
 	startAsteroidY             float32 = -64.0
 	
 	asteroidsToSpawnIncrement      int = 1
-	delayBetweenAsteroidsIncrement float32 = -500.0
+	delayBetweenAsteroidsIncrement float32 = -50.0
 	asteroidVelocityIncrement      float32 = 0.01
 	
 	asteroidRegularWordColor  sdl.Color = sdl.Color{220, 50, 47, 255}
