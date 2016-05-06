@@ -20,18 +20,17 @@ var (
 	asteroidFontSize int = 20
 	asteroidFont     *ttf.Font
 
+	currentWordWidth    int32 = 350
+	currentWordHeight   int32 = 37
 	currentWordFontSize int = 32
-	currentWordMargin   int32 = 8
-	currentWordPadding  int32 = 2
+	currentWordMargin   int32 = 16
+	currentWordPadding  int32 = 5
 	currentWordBorder   int32 = 1
 	currentWordFont     *ttf.Font
 
 	currentWordTexture       *sdl.Texture
 	currentWordTextureWidth  int32
 	currentWordTextureHeight int32
-	restWordTexture          *sdl.Texture
-	restWordTextureWidth     int32
-	restWordTextureHeight    int32
 
 	applicationRenderer *sdl.Renderer
 	applicationRunning  bool
@@ -145,7 +144,7 @@ func main() {
 	if runtime.GOOS == `darwin` {
 		ScreenWidth = 1280
 		ScreenHeight = 800
-		windowFlags = sdl.WINDOW_FULLSCREEN
+		//windowFlags = sdl.WINDOW_FULLSCREEN
 	}
 
 	window, err := sdl.CreateWindow("Astrotyper", sdl.WINDOWPOS_UNDEFINED,
@@ -163,6 +162,7 @@ func main() {
 
 	asteroidFont = openFont(fontPath, asteroidFontSize)
 	currentWordFont = openFont(fontPath, currentWordFontSize)
+	updateCurrentWordTexture()
 
 	hudEarth = NewText(fontPath, hudFontSize)
 	hudEarth.Update("Earth: 100%", applicationRenderer)
@@ -280,74 +280,39 @@ func updateFontTexture(text string, font *ttf.Font, texture **sdl.Texture, width
 }
 
 func updateCurrentWordTexture() {
-	var restWord string
-
-	if currentAsteroid != nil {
-		asteroidWord := currentAsteroid.Word()
-		currentWordLen := len(currentWord)
-		if currentWordLen < len(asteroidWord) {
-			restWord = asteroidWord[currentWordLen:]
-		}
-	}
-
-	updateFontTexture(currentWord,
+	updateFontTexture(currentWord + "_",
 		currentWordFont,
 		&currentWordTexture,
 		&currentWordTextureWidth,
 		&currentWordTextureHeight,
-		sdl.Color{255, 255, 0, 255})
-
-	if len(restWord) > 0 {
-		updateFontTexture(restWord,
-			currentWordFont,
-			&restWordTexture,
-			&restWordTextureWidth,
-			&restWordTextureHeight,
-			sdl.Color{255, 255, 255, 255})
-	} else {
-		if restWordTexture != nil {
-			restWordTexture.Destroy()
-			restWordTexture = nil
-			restWordTextureWidth = 0
-			restWordTextureHeight = 0
-		}
-	}
+		sdl.Color{238, 232, 213, 255})
 }
 
 func drawCurrentWord() {
+	background := &sdl.Rect{}
+	border := &sdl.Rect{}
+
+	background.X = (ScreenWidth / 2) - (currentWordWidth / 2) - currentWordPadding
+	background.Y = ScreenHeight - currentWordHeight - currentWordPadding - currentWordMargin
+	background.W = currentWordWidth + (currentWordPadding * 2)
+	background.H = currentWordHeight + (currentWordPadding * 2)
+
+	border.X = background.X - currentWordBorder
+	border.Y = background.Y - currentWordBorder
+	border.W = background.W + (currentWordBorder * 2)
+	border.H = background.H + (currentWordBorder * 2)
+
+	applicationRenderer.SetDrawColor(38, 139, 210, 255)
+	applicationRenderer.FillRect(border)
+	applicationRenderer.SetDrawColor(0, 43, 54, 255)
+	applicationRenderer.FillRect(background)
+
 	if currentWordTexture != nil {
 		text := &sdl.Rect{}
-		rest := &sdl.Rect{}
-		background := &sdl.Rect{}
-		border := &sdl.Rect{}
-
-		text.X = (ScreenWidth / 2) - (currentWordTextureWidth / 2) - (restWordTextureWidth / 2)
-		text.Y = ScreenHeight - currentWordTextureHeight - currentWordPadding - currentWordMargin - currentWordBorder
+		text.X = background.X + currentWordPadding
+		text.Y = background.Y + currentWordPadding
 		text.W = currentWordTextureWidth
 		text.H = currentWordTextureHeight
-
-		rest.X = text.X + text.W
-		rest.Y = text.Y
-		rest.W = restWordTextureWidth
-		rest.H = restWordTextureHeight
-
-		background.X = text.X - currentWordPadding
-		background.Y = text.Y - currentWordPadding
-		background.W = text.W + rest.W + (currentWordPadding * 2)
-		background.H = text.H + (currentWordPadding * 2)
-
-		border.X = background.X - currentWordBorder
-		border.Y = background.Y - currentWordBorder
-		border.W = background.W + (currentWordBorder * 2)
-		border.H = background.H + (currentWordBorder * 2)
-
-		applicationRenderer.SetDrawColor(255, 0, 0, 255)
-		applicationRenderer.FillRect(border)
-		applicationRenderer.SetDrawColor(50, 50, 50, 255)
-		applicationRenderer.FillRect(background)
 		applicationRenderer.Copy(currentWordTexture, nil, text)
-		if restWordTexture != nil {
-			applicationRenderer.Copy(restWordTexture, nil, rest)
-		}
 	}
 }
