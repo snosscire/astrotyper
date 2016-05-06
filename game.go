@@ -7,18 +7,18 @@ import (
 
 var (
 	startNumberOfAsteroids     int = 5
-	startDelayBetweenAsteroids float32 = 5000.0
+	startDelayBetweenAsteroids float32 = 2000.0
 	startAsteroidVelocity      float32 = 0.1
 	startAsteroidY             float32 = -64.0
 	
 	asteroidsToSpawnIncrement      int = 1
-	delayBetweenAsteroidsIncrement float32 = -50.0
+	delayBetweenAsteroidsIncrement float32 = -100.0
 	asteroidVelocityIncrement      float32 = 0.01
 	
 	asteroidRegularWordColor  sdl.Color = sdl.Color{220, 50, 47, 255}
 	asteroidTargetedWordColor sdl.Color = sdl.Color{133, 153, 0, 255}
 
-	minDelayBetweenAsteroids float32 = 500.0
+	minDelayBetweenAsteroids float32 = 1000.0
 
 	asteroidMinDamage   int = 5
 	asteroidMaxDamage   int = 10
