@@ -25,6 +25,8 @@ var (
 	asteroidWordMargin  int32 = 10
 	asteroidWordPadding int32 = 1
 	asteroidWordBorder  int32 = 1
+
+	wordList []string
 )
 
 type Asteroid struct {
@@ -56,14 +58,14 @@ type Game struct {
 	nextLevel                  NextLevel
 }
 
-func NewAsteroid(x, y, velocity float32) *Asteroid {
+func NewAsteroid(x, y, velocity float32, level int) *Asteroid {
 	asteroid := &Asteroid{}
 	asteroid.alive = true
 	asteroid.x = x
 	asteroid.y = y
 	asteroid.velocity = velocity
 	asteroid.targeted = false
-	asteroid.word = "tobias"
+	asteroid.word = randomWord(level)
 	asteroid.updateWordTexture()
 	return asteroid
 }
@@ -194,7 +196,7 @@ func (game *Game) GetMatchingAsteroid(firstCharacter string) *Asteroid {
 
 func (game *Game) spawnNextAsteroid() {
 	x := float32(rand.Intn(int(ScreenWidth)-512)+64)
-	asteroid := NewAsteroid(x, startAsteroidY, game.asteroidVelocity)
+	asteroid := NewAsteroid(x, startAsteroidY, game.asteroidVelocity, game.level)
 	game.asteroids = append(game.asteroids, asteroid)
 	game.asteroidsLeftToSpawn--
 }
@@ -264,3 +266,78 @@ func (game *Game) Draw(renderer *sdl.Renderer) {
 	}
 }
 
+func createWordList() {
+	wordList = append(wordList, "car")
+	wordList = append(wordList, "eat")
+	wordList = append(wordList, "fat")
+	wordList = append(wordList, "gun")
+	wordList = append(wordList, "hug")
+	wordList = append(wordList, "net")
+	wordList = append(wordList, "put")
+	wordList = append(wordList, "war")
+
+	wordList = append(wordList, "five")
+	wordList = append(wordList, "four")
+	wordList = append(wordList, "nine")
+	wordList = append(wordList, "bear")
+	wordList = append(wordList, "food")
+	wordList = append(wordList, "last")
+	wordList = append(wordList, "fast")
+	wordList = append(wordList, "port")
+	wordList = append(wordList, "door")
+
+	wordList = append(wordList, "seven")
+	wordList = append(wordList, "eight")
+	wordList = append(wordList, "right")
+	wordList = append(wordList, "smite")
+	wordList = append(wordList, "queue")
+	wordList = append(wordList, "smart")
+	wordList = append(wordList, "smear")
+	wordList = append(wordList, "dance")
+	wordList = append(wordList, "blast")
+
+	wordList = append(wordList, "eleven")
+	wordList = append(wordList, "twelve")
+	wordList = append(wordList, "tought")
+	wordList = append(wordList, "bought")
+	wordList = append(wordList, "trench")
+	wordList = append(wordList, "cought")
+	wordList = append(wordList, "faster")
+	wordList = append(wordList, "answer")
+	wordList = append(wordList, "slower")
+
+	wordList = append(wordList, "monster")
+	wordList = append(wordList, "bouncer")
+	wordList = append(wordList, "assault")
+	wordList = append(wordList, "message")
+	wordList = append(wordList, "corrupt")
+	wordList = append(wordList, "acquire")
+	wordList = append(wordList, "explodes")
+	wordList = append(wordList, "contains")
+	wordList = append(wordList, "tailoring")
+
+	wordList = append(wordList, "sacrifice")
+	wordList = append(wordList, "feedback")
+	wordList = append(wordList, "purchase")
+	wordList = append(wordList, "financial")
+	wordList = append(wordList, "difficult")
+	wordList = append(wordList, "department")
+	wordList = append(wordList, "exchange")
+	wordList = append(wordList, "exhibiting")
+	wordList = append(wordList, "dedication")
+	wordList = append(wordList, "complicated")
+}
+
+func init() {
+	createWordList()
+}
+
+func randomWord(level int) string {
+	level--
+	if level > 20 {
+		level = 20
+	}
+	max := len(wordList) - 1
+	random := rand.Intn(max - level) + level
+	return wordList[random]
+}
