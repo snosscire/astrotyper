@@ -20,14 +20,18 @@ var (
 	asteroidFontSize int = 20
 	asteroidFont     *ttf.Font
 
-	currentWordFontSize int = 36
-	currentWordPadding  int32 = 8
+	currentWordFontSize int = 32
+	currentWordMargin   int32 = 8
+	currentWordPadding  int32 = 2
 	currentWordBorder   int32 = 1
 	currentWordFont     *ttf.Font
 
 	currentWordTexture       *sdl.Texture
 	currentWordTextureWidth  int32
 	currentWordTextureHeight int32
+	restWordTexture          *sdl.Texture
+	restWordTextureWidth     int32
+	restWordTextureHeight    int32
 
 	applicationRenderer *sdl.Renderer
 	applicationRunning  bool
@@ -253,21 +257,59 @@ func drawHUD() {
 		ScreenHeight-hudEarth.Height()-hudMarginBottom)
 }
 
-func updateCurrentWordTexture() {
-	if currentWordTexture != nil {
-		currentWordTexture.Destroy()
-		currentWordTexture = nil
+func updateFontTexture(text string, font *ttf.Font, texture **sdl.Texture, width *int32, height *int32, color sdl.Color) {
+	if texture != nil {
+		t := *texture
+		t.Destroy()
+		*texture = nil
+		*width = 0
+		*height = 0
 	}
-	surface, err := currentWordFont.RenderUTF8_Blended(currentWord, sdl.Color{255, 255, 0, 255})
+	surface, err := font.RenderUTF8_Blended(text, color)
 	if err == nil {
-		width := surface.W
-		height := surface.H
-		texture, err := applicationRenderer.CreateTextureFromSurface(surface)
+		w := surface.W
+		h := surface.H
+		t, err := applicationRenderer.CreateTextureFromSurface(surface)
 		surface.Free()
 		if err == nil {
-			currentWordTexture = texture
-			currentWordTextureWidth = width
-			currentWordTextureHeight = height
+			*texture = t
+			*width = w
+			*height = h
+		}
+	}
+}
+
+func updateCurrentWordTexture() {
+	var restWord string
+
+	if currentAsteroid != nil {
+		asteroidWord := currentAsteroid.Word()
+		currentWordLen := len(currentWord)
+		if currentWordLen < len(asteroidWord) {
+			restWord = asteroidWord[currentWordLen:]
+		}
+	}
+
+	updateFontTexture(currentWord,
+		currentWordFont,
+		&currentWordTexture,
+		&currentWordTextureWidth,
+		&currentWordTextureHeight,
+		sdl.Color{255, 255, 0, 255})
+
+	if len(restWord) > 0 {
+		updateFontTexture(restWord,
+			currentWordFont,
+			&restWordTexture,
+			&restWordTextureWidth,
+			&restWordTextureHeight,
+			sdl.Color{255, 255, 255, 255})
+	} else {
+		if restWordTexture != nil {
+			restWordTexture.Destroy()
+			restWordTexture = nil
+			restWordTextureWidth = 0
+			restWordTextureHeight = 0
 		}
 	}
 }
@@ -275,17 +317,23 @@ func updateCurrentWordTexture() {
 func drawCurrentWord() {
 	if currentWordTexture != nil {
 		text := &sdl.Rect{}
+		rest := &sdl.Rect{}
 		background := &sdl.Rect{}
 		border := &sdl.Rect{}
 
-		text.X = (ScreenWidth / 2) - (currentWordTextureWidth / 2)
-		text.Y = ScreenHeight - currentWordTextureHeight - currentWordPadding
+		text.X = (ScreenWidth / 2) - (currentWordTextureWidth / 2) - (restWordTextureWidth / 2)
+		text.Y = ScreenHeight - currentWordTextureHeight - currentWordPadding - currentWordMargin - currentWordBorder
 		text.W = currentWordTextureWidth
 		text.H = currentWordTextureHeight
 
+		rest.X = text.X + text.W
+		rest.Y = text.Y
+		rest.W = restWordTextureWidth
+		rest.H = restWordTextureHeight
+
 		background.X = text.X - currentWordPadding
 		background.Y = text.Y - currentWordPadding
-		background.W = text.W + (currentWordPadding * 2)
+		background.W = text.W + rest.W + (currentWordPadding * 2)
 		background.H = text.H + (currentWordPadding * 2)
 
 		border.X = background.X - currentWordBorder
@@ -298,5 +346,8 @@ func drawCurrentWord() {
 		applicationRenderer.SetDrawColor(50, 50, 50, 255)
 		applicationRenderer.FillRect(background)
 		applicationRenderer.Copy(currentWordTexture, nil, text)
+		if restWordTexture != nil {
+			applicationRenderer.Copy(restWordTexture, nil, rest)
+		}
 	}
 }
