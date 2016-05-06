@@ -43,6 +43,10 @@ func NewPlayer(renderer *sdl.Renderer) *Player {
 	return player
 }
 
+func (player *Player) Reset() {
+	player.health = playerStartHealth
+}
+
 func (player *Player) TakeDamage(damage int) {
 	player.health -= damage
 	if player.health < 0 {

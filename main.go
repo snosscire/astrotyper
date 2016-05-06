@@ -20,6 +20,10 @@ var (
 	asteroidFontSize int = 20
 	asteroidFont     *ttf.Font
 
+	menuLogoFontSize int = 128
+	menuItemFontSize int = 42
+	menuItemSelected int = 0
+
 	currentWordWidth    int32 = 350
 	currentWordHeight   int32 = 37
 	currentWordFontSize int = 32
@@ -36,9 +40,14 @@ var (
 	applicationRunning  bool
 	gamePaused          bool
 	gameOver            bool
+	mainMenu            bool
 	
-	overlayLevel *Text
-	hudEarth     *Text
+	overlayGameOver *Text
+	overlayLevel    *Text
+	hudEarth        *Text
+	menuItemStart   *Text
+	menuItemQuit    *Text
+	menuLogo        *Text
 
 	hudFontSize     int = 32
 	hudMarginRight  int32 = 16
@@ -61,16 +70,20 @@ func handleEvents() {
 			applicationRunning = false
 		case *sdl.KeyDownEvent:
 			if t.Keysym.Sym == sdl.K_ESCAPE {
-				if len(currentWord) > 0 {
-					currentWord = ""
-					if currentAsteroid != nil {
-						currentAsteroid.Untarget()
-						currentAsteroid = nil
-					}
-					fmt.Printf("current word: %s\n", currentWord)
-					updateCurrentWordTexture()
-				} else {
+				if mainMenu {
 					applicationRunning = false
+				} else {
+					if len(currentWord) > 0 {
+						currentWord = ""
+						if currentAsteroid != nil {
+							currentAsteroid.Untarget()
+							currentAsteroid = nil
+						}
+						fmt.Printf("current word: %s\n", currentWord)
+						updateCurrentWordTexture()
+					} else {
+						mainMenu = true
+					}
 				}
 			} else if t.Keysym.Sym == sdl.K_BACKSPACE {
 				if len(currentWord) > 0 {
@@ -78,6 +91,33 @@ func handleEvents() {
 					currentWord = currentWord[:index]
 					fmt.Printf("current word: %s\n", currentWord)
 					updateCurrentWordTexture()
+				}
+			} else if t.Keysym.Sym == sdl.K_UP {
+				if mainMenu {
+					if menuItemSelected == 0 {
+						menuItemSelected = 1
+					} else {
+						menuItemSelected = 0
+					}
+					createMainMenu()
+				}
+			} else if t.Keysym.Sym == sdl.K_DOWN {
+				if mainMenu {
+					if menuItemSelected == 0 {
+						menuItemSelected = 1
+					} else {
+						menuItemSelected = 0
+					}
+					createMainMenu()
+				}
+			} else if t.Keysym.Sym == sdl.K_RETURN {
+				if mainMenu {
+					if menuItemSelected == 0 {
+						startGame()
+						mainMenu = false
+					} else if menuItemSelected == 1 {
+						applicationRunning = false
+					}
 				}
 			} else {
 				if gameOver || gamePaused {
@@ -168,31 +208,17 @@ func main() {
 	}
 	defer applicationRenderer.Destroy()
 
-	asteroidFont = openFont(fontPath, asteroidFontSize)
-	currentWordFont = openFont(fontPath, currentWordFontSize)
-	updateCurrentWordTexture()
-
-	hudEarth = NewText(fontPath, hudFontSize)
-	hudEarth.Update("Earth: 100%", applicationRenderer)
-
-	overlayLevel = NewText(fontPath, levelFontSize)
-	handleNextLevel(1)
-
-	overlayGameOver := NewText(fontPath, levelFontSize)
-	overlayGameOver.Update("GAME OVER", applicationRenderer)
-
 	background1 := NewBackground(100, 1, 1, 0.2)
 	background2 := NewBackground(10, 1, 1, 0.3)
 	background3 := NewBackground(1, 4, 4, 0.4)
 
-	currentPlayer = NewPlayer(applicationRenderer)
-	currentGame = NewGame()
-
-	currentGame.Start(handleAsteroidNotDestroyed, handleNextLevel)
+	createMainMenu()
 
 	currentTime := sdl.GetTicks()
 	lastTime := currentTime
 	var deltaTime float32
+
+	mainMenu = true
 
 	applicationRunning = true
 	for applicationRunning {
@@ -202,12 +228,15 @@ func main() {
 
 		handleEvents()
 
-		if !gamePaused && !gameOver {
-			background1.Update(deltaTime)
-			background2.Update(deltaTime)
-			background3.Update(deltaTime)
-			currentPlayer.Update(deltaTime)
-			currentGame.Update(deltaTime)
+		background1.Update(deltaTime)
+		background2.Update(deltaTime)
+		background3.Update(deltaTime)
+
+		if !mainMenu {
+			if !gamePaused && !gameOver {
+				currentPlayer.Update(deltaTime)
+				currentGame.Update(deltaTime)
+			}
 		}
 
 		applicationRenderer.SetDrawColor(0, 0, 0, 255)
@@ -216,13 +245,18 @@ func main() {
 		background1.Draw(applicationRenderer)
 		background2.Draw(applicationRenderer)
 		background3.Draw(applicationRenderer)
-		currentPlayer.Draw(applicationRenderer)
-		currentGame.Draw(applicationRenderer)
 
-		drawLevel(deltaTime)
-		drawGameOver(overlayGameOver)
-		drawHUD()
-		drawCurrentWord()
+		if !mainMenu {
+			currentPlayer.Draw(applicationRenderer)
+			currentGame.Draw(applicationRenderer)
+
+			drawLevel(deltaTime)
+			drawGameOver(overlayGameOver)
+			drawHUD()
+			drawCurrentWord()
+		} else {
+			drawMainMenu()
+		}
 
 		applicationRenderer.Present()
 	}
@@ -234,12 +268,79 @@ func main() {
 	sdl.Quit()
 }
 
+func startGame() {
+	if asteroidFont == nil {
+		asteroidFont = openFont(fontPath, asteroidFontSize)
+	}
+	if currentWordFont == nil {
+		currentWordFont = openFont(fontPath, currentWordFontSize)
+	}
+	updateCurrentWordTexture()
+
+	if hudEarth == nil {
+		hudEarth = NewText(fontPath, hudFontSize)
+	}
+	hudEarth.Update("Earth: 100%", applicationRenderer)
+
+	if overlayLevel == nil {
+		overlayLevel = NewText(fontPath, levelFontSize)
+	}
+	handleNextLevel(1)
+
+	if overlayGameOver == nil {
+		overlayGameOver = NewText(fontPath, levelFontSize)
+	}
+	overlayGameOver.Update("GAME OVER", applicationRenderer)
+
+	if currentPlayer == nil {
+		currentPlayer = NewPlayer(applicationRenderer)
+	}
+	currentPlayer.Reset()
+	if currentGame == nil {
+		currentGame = NewGame()
+	}
+	currentGame.Start(handleAsteroidNotDestroyed, handleNextLevel)
+}
+
 func openFont(path string, size int) *ttf.Font {
 	font, err := ttf.OpenFont(fontPath, size)
 	if err != nil {
 		panic(err)
 	}
 	return font
+}
+
+func createMainMenu() {
+	if menuLogo == nil {
+		menuLogo = NewText(fontPath, menuLogoFontSize)
+		menuLogo.Update("Astrotyper", applicationRenderer)
+	}
+	if menuItemStart == nil {
+		menuItemStart = NewText(fontPath, menuItemFontSize)
+	}
+	menuItemStartText := "New Game"
+	if menuItemSelected == 0 {
+		menuItemStartText = "* New Game *"
+	}
+	menuItemStart.Update(menuItemStartText, applicationRenderer)
+	if menuItemQuit == nil {
+		menuItemQuit = NewText(fontPath, menuItemFontSize)
+	}
+	menuItemQuitText := "Quit"
+	if menuItemSelected == 1 {
+		menuItemQuitText = "* Quit *"
+	}
+	menuItemQuit.Update(menuItemQuitText, applicationRenderer)
+}
+
+func drawMainMenu() {
+	menuLogo.Draw(applicationRenderer, (ScreenWidth/2)-(menuLogo.Width()/2), 128)
+	menuItemStart.Draw(applicationRenderer,
+		(ScreenWidth/2)-(menuItemStart.Width()/2),
+		(ScreenHeight/2)-(menuItemStart.Height()))
+	menuItemQuit.Draw(applicationRenderer,
+		(ScreenWidth/2)-(menuItemQuit.Width()/2),
+		(ScreenHeight/2)+(menuItemStart.Height()))
 }
 
 func drawLevel(deltaTime float32) {

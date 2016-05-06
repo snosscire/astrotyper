@@ -176,6 +176,7 @@ func (game *Game) Start(asteroidNotDestroyed AsteroidNotDestroyed, nextLevel Nex
 	game.asteroidVelocity = startAsteroidVelocity
 	game.asteroidNotDestroyed = asteroidNotDestroyed
 	game.nextLevel = nextLevel
+	game.asteroids = make([]*Asteroid, 0)
 }
 
 func (game *Game) GetMatchingAsteroid(firstCharacter string) *Asteroid {
