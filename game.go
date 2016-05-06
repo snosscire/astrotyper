@@ -38,6 +38,7 @@ type Asteroid struct {
 	wordTexture       *sdl.Texture
 	wordTextureWidth  int32
 	wordTextureHeight int32
+	explosion         *ExplosionParticleEffect
 }
 
 type AsteroidNotDestroyed func(int)
@@ -79,6 +80,7 @@ func (asteroid *Asteroid) Damage() int {
 }
 func (asteroid *Asteroid) Destroy() {
 	asteroid.alive = false
+	asteroid.explosion = NewExplosionParticleEffect(asteroid.x, asteroid.y)
 }
 
 func (asteroid *Asteroid) updateWordTexture(	) {
@@ -113,9 +115,11 @@ func (asteroid *Asteroid) IsAlive() bool {
 }
 
 func (asteroid *Asteroid) Update(deltaTime float32) {
-	asteroid.y += (asteroid.velocity * deltaTime);
-	if asteroid.y > float32(ScreenHeight) {
-		asteroid.alive = false
+	if asteroid.alive {
+		asteroid.y += (asteroid.velocity * deltaTime);
+		if asteroid.y > float32(ScreenHeight) {
+			asteroid.alive = false
+		}
 	}
 }
 
@@ -235,6 +239,10 @@ func (game *Game) Update(deltaTime float32) {
 					game.asteroidNotDestroyed(asteroid.Damage())
 				}
 			}
+		} else {
+			if asteroid.explosion != nil {
+				asteroid.explosion.Update(deltaTime)
+			}
 		}
 	}
 	
@@ -247,6 +255,10 @@ func (game *Game) Draw(renderer *sdl.Renderer) {
 	for _, asteroid := range game.asteroids {
 		if asteroid.IsAlive() {
 			asteroid.Draw(renderer)
+		} else {
+			if asteroid.explosion != nil {
+				asteroid.explosion.Draw(renderer)
+			}
 		}
 	}
 }

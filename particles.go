@@ -28,6 +28,33 @@ var (
 	jetBeamParticleEffectOrangeParticleRed          uint8   = 255
 	jetBeamParticleEffectOrangeParticleGreen        uint8   = 160
 	jetBeamParticleEffectOrangeParticleBlue         uint8   = 40
+
+	explosionParticleEffectWhiteParticles  int = 500
+	explosionParticleEffectYellowParticles int = 1000
+	explosionParticleEffectOrangeParticles int = 2000
+	explosionParticleEffectParticleWidth   int32 = 8
+	explosionParticleEffectParticleHeight  int32 = 8
+
+	explosionParticleEffectWhiteParticleAliveTime   float32 = 250.0
+	explosionParticleEffectWhiteParticleRed         uint8 = 255
+	explosionParticleEffectWhiteParticleGreen       uint8 = 255
+	explosionParticleEffectWhiteParticleBlue        uint8 = 255
+	explosionParticleEffectWhiteParticleMinVelocity int = -8
+	explosionParticleEffectWhiteParticleMaxVelocity int = 8
+
+	explosionParticleEffectYellowParticleAliveTime   float32 = 250.0
+	explosionParticleEffectYellowParticleRed         uint8 = 255
+	explosionParticleEffectYellowParticleGreen       uint8 = 255
+	explosionParticleEffectYellowParticleBlue        uint8 = 155
+	explosionParticleEffectYellowParticleMinVelocity int = -12
+	explosionParticleEffectYellowParticleMaxVelocity int = 12
+
+	explosionParticleEffectOrangeParticleAliveTime   float32 = 250.0
+	explosionParticleEffectOrangeParticleRed         uint8 = 255
+	explosionParticleEffectOrangeParticleGreen       uint8 = 160
+	explosionParticleEffectOrangeParticleBlue        uint8 = 40
+	explosionParticleEffectOrangeParticleMinVelocity int = -16
+	explosionParticleEffectOrangeParticleMaxVelocity int = 16
 )
 
 type Particle struct {
@@ -53,6 +80,12 @@ type JetBeamParticleEffect struct {
 	orangeParticles []*Particle
 }
 
+type ExplosionParticleEffect struct {
+	whiteParticles  []*Particle
+	yellowParticles []*Particle
+	orangeParticles []*Particle
+}
+
 func (particle *Particle) IsAlive() bool {
 	return particle.alive
 }
@@ -73,6 +106,7 @@ func (particle *Particle) Update(deltaTime float32) {
 		particle.alive = false
 		return
 	}
+	particle.currentX += (particle.velocityX * deltaTime)
 	particle.currentY += (particle.velocityY * deltaTime)
 }
 
@@ -168,5 +202,131 @@ func (jetBeam *JetBeamParticleEffect) Draw(renderer *sdl.Renderer) {
 	}
 	for _, particle := range jetBeam.yellowParticles {
 		particle.Draw(renderer)
+	}
+}
+
+func NewExplosionParticleEffect(x, y float32) *ExplosionParticleEffect {
+	effect := &ExplosionParticleEffect{}
+
+	x += 32
+	y += 32
+
+	for i := 1; i <= explosionParticleEffectWhiteParticles; i++ {
+		particle := effect.newWhiteParticle(x, y)
+		effect.whiteParticles = append(effect.whiteParticles, particle)
+	}
+	for i := 1; i <= explosionParticleEffectYellowParticles; i++ {
+		particle := effect.newYellowParticle(x, y)
+		effect.yellowParticles = append(effect.yellowParticles, particle)
+	}
+	for i := 1; i <= explosionParticleEffectOrangeParticles; i++ {
+		particle := effect.newOrangeParticle(x, y)
+		effect.orangeParticles = append(effect.orangeParticles, particle)
+	}
+
+	return effect
+}
+
+func (explosion *ExplosionParticleEffect) randomVelocity(min int, max int) float32 {
+	random := rand.Intn(max - min) + min
+	velocity := float32(random) / 100.0
+	return velocity
+}
+
+func (explosion *ExplosionParticleEffect) randomPosition(min int, max int) float32 {
+	random := rand.Intn(max - min) + min
+	position := float32(random)
+	return position
+}
+
+func (explosion *ExplosionParticleEffect) newWhiteParticle(x, y float32) *Particle {
+	particle := explosion.newParticle(x, y)
+	particle.rectangle.W = explosionParticleEffectParticleWidth
+	particle.rectangle.H = explosionParticleEffectParticleHeight
+	particle.aliveTime = explosionParticleEffectWhiteParticleAliveTime
+	particle.timeLeft = particle.aliveTime
+	particle.red = explosionParticleEffectWhiteParticleRed
+	particle.green = explosionParticleEffectWhiteParticleGreen
+	particle.blue = explosionParticleEffectWhiteParticleBlue
+	particle.velocityX = explosion.randomVelocity(explosionParticleEffectWhiteParticleMinVelocity, explosionParticleEffectWhiteParticleMaxVelocity)
+	particle.velocityY = explosion.randomVelocity(explosionParticleEffectWhiteParticleMinVelocity, explosionParticleEffectWhiteParticleMaxVelocity)
+	return particle
+}
+
+func (explosion *ExplosionParticleEffect) newYellowParticle(x, y float32) *Particle {
+	particle := explosion.newParticle(x, y)
+	particle.rectangle.W = explosionParticleEffectParticleWidth
+	particle.rectangle.H = explosionParticleEffectParticleHeight
+	particle.aliveTime = explosionParticleEffectYellowParticleAliveTime
+	particle.timeLeft = particle.aliveTime
+	particle.red = explosionParticleEffectYellowParticleRed
+	particle.green = explosionParticleEffectYellowParticleGreen
+	particle.blue = explosionParticleEffectYellowParticleBlue
+	particle.velocityX = explosion.randomVelocity(explosionParticleEffectYellowParticleMinVelocity, explosionParticleEffectYellowParticleMaxVelocity)
+	particle.velocityY = explosion.randomVelocity(explosionParticleEffectYellowParticleMinVelocity, explosionParticleEffectYellowParticleMaxVelocity)
+	return particle
+}
+
+func (explosion *ExplosionParticleEffect) newOrangeParticle(x, y float32) *Particle {
+	particle := explosion.newParticle(x, y)
+	particle.rectangle.W = explosionParticleEffectParticleWidth
+	particle.rectangle.H = explosionParticleEffectParticleHeight
+	particle.aliveTime = explosionParticleEffectOrangeParticleAliveTime
+	particle.timeLeft = particle.aliveTime
+	particle.red = explosionParticleEffectOrangeParticleRed
+	particle.green = explosionParticleEffectOrangeParticleGreen
+	particle.blue = explosionParticleEffectOrangeParticleBlue
+	particle.velocityX = explosion.randomVelocity(explosionParticleEffectOrangeParticleMinVelocity, explosionParticleEffectOrangeParticleMaxVelocity)
+	particle.velocityY = explosion.randomVelocity(explosionParticleEffectOrangeParticleMinVelocity, explosionParticleEffectOrangeParticleMaxVelocity)
+	return particle
+}
+
+func (explosion *ExplosionParticleEffect) newParticle(x, y float32) *Particle {
+	x = explosion.randomPosition(int(x-16), int(x+16))
+	y = explosion.randomPosition(int(y-16), int(y+16))
+	particle := &Particle{}
+	particle.rectangle.X = 0
+	particle.rectangle.Y = 0
+	particle.alive = true
+	particle.originX = x
+	particle.originY = y
+	particle.currentX = x
+	particle.currentY = y
+	return particle
+}
+
+func (explosion *ExplosionParticleEffect) Update(deltaTime float32) {
+	for _, particle := range explosion.whiteParticles {
+		if particle.IsAlive() {
+			particle.Update(deltaTime)
+		}
+	}
+	for _, particle := range explosion.yellowParticles {
+		if particle.IsAlive() {
+			particle.Update(deltaTime)
+		}
+	}
+	for _, particle := range explosion.orangeParticles {
+		if particle.IsAlive() {
+			particle.Update(deltaTime)
+		}
+	}
+}
+
+func (explosion *ExplosionParticleEffect) Draw(renderer *sdl.Renderer) {
+	for _, particle := range explosion.orangeParticles {
+		if particle.IsAlive() {
+			particle.Draw(renderer)
+		}
+	}
+	for _, particle := range explosion.yellowParticles {
+		if particle.IsAlive() {
+			particle.Draw(renderer)
+		}
+	}
+	for _, particle := range explosion.whiteParticles {
+		if particle.IsAlive() {
+			particle.Draw(renderer)
+		}
 	}
 }
