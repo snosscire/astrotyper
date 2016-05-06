@@ -187,13 +187,7 @@ func main() {
 	img.Init(img.INIT_PNG)
 	ttf.Init()
 
-	var windowFlags uint32 = sdl.WINDOW_SHOWN
-
-	if runtime.GOOS == `darwin` {
-		ScreenWidth = 1280
-		ScreenHeight = 800
-		//windowFlags = sdl.WINDOW_FULLSCREEN
-	}
+	var windowFlags uint32 = sdl.WINDOW_FULLSCREEN_DESKTOP
 
 	window, err := sdl.CreateWindow("Astrotyper", sdl.WINDOWPOS_UNDEFINED,
 		sdl.WINDOWPOS_UNDEFINED, int(ScreenWidth), int(ScreenHeight), windowFlags)
