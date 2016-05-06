@@ -3,6 +3,7 @@ package main
 import (
 	"math/rand"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/veandco/go-sdl2/sdl_image"
 )
 
 var (
@@ -25,6 +26,9 @@ var (
 	asteroidWordMargin  int32 = 10
 	asteroidWordPadding int32 = 1
 	asteroidWordBorder  int32 = 1
+
+	asteroidTexturePath string = "Resources/asteroid.png"
+	asteroidTexture *sdl.Texture
 
 	wordList []string
 )
@@ -134,8 +138,7 @@ func (asteroid *Asteroid) Draw(renderer *sdl.Renderer) {
 	asteroid.rectangle.Y = int32(asteroid.y)
 	asteroid.rectangle.W = 64
 	asteroid.rectangle.H = 64
-	renderer.SetDrawColor(255, 0, 0, 255)
-	renderer.FillRect(&asteroid.rectangle)
+	renderer.Copy(asteroidTexture, nil, &asteroid.rectangle)
 
 	if asteroid.wordTexture != nil {
 		var wordX, wordY int32
@@ -165,6 +168,12 @@ func (asteroid *Asteroid) Draw(renderer *sdl.Renderer) {
 }
 
 func NewGame() *Game {
+	texture, err := img.LoadTexture(applicationRenderer, asteroidTexturePath)
+	if err != nil {
+		panic(err)
+	}
+	asteroidTexture = texture
+
 	game := &Game{}
 	return game
 }
