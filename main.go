@@ -43,8 +43,10 @@ var (
 	mainMenu            bool
 	
 	overlayGameOver *Text
+	overlayScore    *Text
 	overlayLevel    *Text
 	hudEarth        *Text
+	hudScore        *Text
 	menuItemStart   *Text
 	menuItemQuit    *Text
 	menuLogo        *Text
@@ -61,6 +63,8 @@ var (
 	currentPlayer   *Player
 	currentWord     string
 	currentAsteroid *Asteroid
+
+	playerScore int
 )
 
 func handleEvents() {
@@ -83,6 +87,7 @@ func handleEvents() {
 						updateCurrentWordTexture()
 					} else {
 						mainMenu = true
+						gameOver = false
 					}
 				}
 			} else if t.Keysym.Sym == sdl.K_BACKSPACE {
@@ -115,6 +120,7 @@ func handleEvents() {
 					if menuItemSelected == 0 {
 						startGame()
 						mainMenu = false
+						gameOver = false
 					} else if menuItemSelected == 1 {
 						applicationRunning = false
 					}
@@ -147,6 +153,8 @@ func handleEvents() {
 								updateCurrentWordTexture()
 								if len(currentWord) == wordLen {
 									currentAsteroid.Destroy()
+									playerScore += (len(currentAsteroid.word) * currentGame.level) * 10
+									hudScore.Update(fmt.Sprintf("Score: %d", playerScore), applicationRenderer)
 									currentAsteroid = nil
 									currentWord = ""
 									updateCurrentWordTexture()
@@ -168,6 +176,7 @@ func handleAsteroidNotDestroyed(damage int) {
 	if currentPlayer.CurrentHealth() == 0 {
 		gameOver = true
 		levelTimeLeft = 0.0
+		overlayScore.Update(fmt.Sprintf("Your score: %d", playerScore), applicationRenderer)
 	}
 }
 
@@ -222,9 +231,11 @@ func main() {
 
 		handleEvents()
 
-		background1.Update(deltaTime)
-		background2.Update(deltaTime)
-		background3.Update(deltaTime)
+		if !gameOver {
+			background1.Update(deltaTime)
+			background2.Update(deltaTime)
+			background3.Update(deltaTime)
+		}
 
 		if !mainMenu {
 			if !gamePaused && !gameOver {
@@ -245,7 +256,7 @@ func main() {
 			currentGame.Draw(applicationRenderer)
 
 			drawLevel(deltaTime)
-			drawGameOver(overlayGameOver)
+			drawGameOver()
 			drawHUD()
 			drawCurrentWord()
 		} else {
@@ -275,6 +286,10 @@ func startGame() {
 		hudEarth = NewText(fontPath, hudFontSize)
 	}
 	hudEarth.Update("Earth: 100%", applicationRenderer)
+	if hudScore == nil {
+		hudScore = NewText(fontPath, hudFontSize)
+	}
+	hudScore.Update("Score: 0", applicationRenderer)
 
 	if overlayLevel == nil {
 		overlayLevel = NewText(fontPath, levelFontSize)
@@ -285,6 +300,9 @@ func startGame() {
 		overlayGameOver = NewText(fontPath, levelFontSize)
 	}
 	overlayGameOver.Update("GAME OVER", applicationRenderer)
+	if overlayScore == nil {
+		overlayScore = NewText(fontPath, levelFontSize)
+	}
 
 	if currentPlayer == nil {
 		currentPlayer = NewPlayer(applicationRenderer)
@@ -294,6 +312,10 @@ func startGame() {
 		currentGame = NewGame()
 	}
 	currentGame.Start(handleAsteroidNotDestroyed, handleNextLevel)
+
+	gameOver = false
+	gamePaused = false
+	playerScore = 0
 }
 
 func openFont(path string, size int) *ttf.Font {
@@ -346,18 +368,24 @@ func drawLevel(deltaTime float32) {
 	}
 }
 
-func drawGameOver(overlayGameOver *Text) {
+func drawGameOver() {
 	if gameOver {
 		overlayGameOver.Draw(applicationRenderer,
 			(ScreenWidth/2)-(overlayGameOver.Width()/2),
 			(ScreenHeight/3)-(overlayGameOver.Height()/2))
+		overlayScore.Draw(applicationRenderer,
+			(ScreenWidth/2)-(overlayScore.Width()/2),
+			(ScreenHeight/3)-(overlayScore.Height()/2)+overlayGameOver.Height()+64)
 	}
 }
 
 func drawHUD() {
 	hudEarth.Draw(applicationRenderer,
 		ScreenWidth-hudEarth.Width()-hudMarginRight,
-		ScreenHeight-hudEarth.Height()-hudMarginBottom)
+		ScreenHeight-hudEarth.Height()-hudMarginBottom-hudScore.Height())
+	hudScore.Draw(applicationRenderer,
+		ScreenWidth-hudScore.Width()-hudMarginRight,
+		ScreenHeight-hudScore.Height()-hudMarginBottom)
 }
 
 func updateFontTexture(text string, font *ttf.Font, texture **sdl.Texture, width *int32, height *int32, color sdl.Color) {
