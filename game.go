@@ -15,6 +15,9 @@ var (
 	delayBetweenAsteroidsIncrement float32 = -500.0
 	asteroidVelocityIncrement      float32 = 0.01
 	
+	asteroidRegularWordColor  sdl.Color = sdl.Color{220, 50, 47, 255}
+	asteroidTargetedWordColor sdl.Color = sdl.Color{133, 153, 0, 255}
+
 	minDelayBetweenAsteroids float32 = 500.0
 
 	asteroidMinDamage   int = 5
@@ -27,6 +30,7 @@ var (
 type Asteroid struct {
 	rectangle         sdl.Rect
 	alive             bool
+	targeted          bool
 	x                 float32
 	y                 float32
 	velocity          float32
@@ -57,19 +61,9 @@ func NewAsteroid(x, y, velocity float32) *Asteroid {
 	asteroid.x = x
 	asteroid.y = y
 	asteroid.velocity = velocity
+	asteroid.targeted = false
 	asteroid.word = "tobias"
-
-	surface, err := asteroidFont.RenderUTF8_Blended(asteroid.word, sdl.Color{255, 255, 255, 255})
-	if err == nil {
-		asteroid.wordTextureWidth = surface.W
-		asteroid.wordTextureHeight = surface.H
-		asteroid.wordTexture, err = applicationRenderer.CreateTextureFromSurface(surface)
-		surface.Free()
-		if err != nil {
-			asteroid.wordTexture = nil
-		}
-	}
-
+	asteroid.updateWordTexture()
 	return asteroid
 }
 
@@ -85,6 +79,33 @@ func (asteroid *Asteroid) Damage() int {
 }
 func (asteroid *Asteroid) Destroy() {
 	asteroid.alive = false
+}
+
+func (asteroid *Asteroid) updateWordTexture(	) {
+	color := asteroidRegularWordColor
+	if asteroid.targeted {
+		color = asteroidTargetedWordColor
+	}
+	surface, err := asteroidFont.RenderUTF8_Blended(asteroid.word, color)
+	if err == nil {
+		asteroid.wordTextureWidth = surface.W
+		asteroid.wordTextureHeight = surface.H
+		asteroid.wordTexture, err = applicationRenderer.CreateTextureFromSurface(surface)
+		surface.Free()
+		if err != nil {
+			asteroid.wordTexture = nil
+		}
+	}
+}
+
+func (asteroid *Asteroid) Target() {
+	asteroid.targeted = true
+	asteroid.updateWordTexture()
+}
+
+func (asteroid *Asteroid) Untarget() {
+	asteroid.targeted = false
+	asteroid.updateWordTexture()
 }
 
 func (asteroid *Asteroid) IsAlive() bool {
@@ -125,9 +146,13 @@ func (asteroid *Asteroid) Draw(renderer *sdl.Renderer) {
 		borderW = bgW + (asteroidWordBorder * 2)
 		borderH = bgH + (asteroidWordBorder * 2)
 
-		renderer.SetDrawColor(255, 0, 0, 255)
+		borderColor := asteroidRegularWordColor
+		if asteroid.targeted {
+			borderColor = asteroidTargetedWordColor
+		}
+		renderer.SetDrawColor(borderColor.R, borderColor.G, borderColor.B, 255)
 		renderer.FillRect(&sdl.Rect{borderX, borderY, borderW, borderH})
-		renderer.SetDrawColor(60, 60, 60, 255)
+		renderer.SetDrawColor(0, 43, 54, 255)
 		renderer.FillRect(&sdl.Rect{bgX, bgY, bgW, bgH})
 		renderer.Copy(asteroid.wordTexture, nil, &sdl.Rect{wordX, wordY, asteroid.wordTextureWidth, asteroid.wordTextureHeight})
 	}

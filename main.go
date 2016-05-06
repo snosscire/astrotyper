@@ -63,7 +63,10 @@ func handleEvents() {
 			if t.Keysym.Sym == sdl.K_ESCAPE {
 				if len(currentWord) > 0 {
 					currentWord = ""
-					currentAsteroid = nil
+					if currentAsteroid != nil {
+						currentAsteroid.Untarget()
+						currentAsteroid = nil
+					}
 					fmt.Printf("current word: %s\n", currentWord)
 					updateCurrentWordTexture()
 				} else {
@@ -77,6 +80,9 @@ func handleEvents() {
 					updateCurrentWordTexture()
 				}
 			} else {
+				if gameOver || gamePaused {
+					return
+				}
 				key := int(t.Keysym.Sym)
 				if key >= 97 && key <= 122 {
 					character := string(key)
@@ -84,6 +90,7 @@ func handleEvents() {
 						asteroid := currentGame.GetMatchingAsteroid(character)
 						if asteroid != nil {
 							currentAsteroid = asteroid
+							currentAsteroid.Target()
 							currentWord += character
 							fmt.Printf("current word: %s\n", currentWord)
 							updateCurrentWordTexture()
@@ -100,6 +107,7 @@ func handleEvents() {
 								updateCurrentWordTexture()
 								if len(currentWord) == wordLen {
 									currentAsteroid.Destroy()
+									currentAsteroid = nil
 									currentWord = ""
 									updateCurrentWordTexture()
 								}
