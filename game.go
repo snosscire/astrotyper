@@ -193,7 +193,7 @@ func (game *Game) GetMatchingAsteroid(firstCharacter string) *Asteroid {
 }
 
 func (game *Game) spawnNextAsteroid() {
-	x := float32(rand.Intn(int(ScreenWidth)))
+	x := float32(rand.Intn(int(ScreenWidth)-512)+64)
 	asteroid := NewAsteroid(x, startAsteroidY, game.asteroidVelocity)
 	game.asteroids = append(game.asteroids, asteroid)
 	game.asteroidsLeftToSpawn--
