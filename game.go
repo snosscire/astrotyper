@@ -28,8 +28,11 @@ var (
 	asteroidWordPadding int32 = 1
 	asteroidWordBorder  int32 = 1
 
-	asteroidTexturePath string = "resources/asteroid.png"
-	asteroidTexture     *sdl.Texture
+	asteroid1TexturePath string = "resources/asteroid1.png"
+	asteroid2TexturePath string = "resources/asteroid2.png"
+	asteroid3TexturePath string = "resources/asteroid3.png"
+	asteroid4TexturePath string = "resources/asteroid4.png"
+	asteroidTextures     []*sdl.Texture
 
 	wordList []string
 )
@@ -41,6 +44,7 @@ type Asteroid struct {
 	x                 float32
 	y                 float32
 	velocity          float32
+	texture           *sdl.Texture
 	word              string
 	wordTexture       *sdl.Texture
 	wordTextureWidth  int32
@@ -70,6 +74,7 @@ func NewAsteroid(x, y, velocity float32, level int) *Asteroid {
 	asteroid.y = y
 	asteroid.velocity = velocity
 	asteroid.targeted = false
+	asteroid.texture = randomAsteroidTexture()
 	asteroid.word = randomWord(level)
 	asteroid.updateWordTexture()
 	return asteroid
@@ -139,7 +144,7 @@ func (asteroid *Asteroid) Draw(renderer *sdl.Renderer) {
 	asteroid.rectangle.Y = int32(asteroid.y)
 	asteroid.rectangle.W = 64
 	asteroid.rectangle.H = 64
-	renderer.Copy(asteroidTexture, nil, &asteroid.rectangle)
+	renderer.Copy(asteroid.texture, nil, &asteroid.rectangle)
 
 	if asteroid.wordTexture != nil {
 		var wordX, wordY int32
@@ -169,11 +174,10 @@ func (asteroid *Asteroid) Draw(renderer *sdl.Renderer) {
 }
 
 func NewGame() *Game {
-	texture, err := img.LoadTexture(applicationRenderer, asteroidTexturePath)
+	err := loadAsteroidTextures()
 	if err != nil {
 		panic(err)
 	}
-	asteroidTexture = texture
 
 	game := &Game{}
 	return game
@@ -340,6 +344,29 @@ func createWordList() {
 
 func init() {
 	createWordList()
+}
+
+func loadAsteroidTextures() error {
+	texturePaths := []string{
+		asteroid1TexturePath,
+		asteroid2TexturePath,
+		asteroid3TexturePath,
+		asteroid4TexturePath,
+	}
+	for _, texturePath := range texturePaths {
+		texture, err := img.LoadTexture(applicationRenderer, texturePath)
+		if err != nil {
+			return err
+		}
+		asteroidTextures = append(asteroidTextures, texture)
+	}
+	return nil
+}
+
+func randomAsteroidTexture() *sdl.Texture {
+	max := len(asteroidTextures) - 1
+	random := rand.Intn(max)
+	return asteroidTextures[random]
 }
 
 func randomWord(level int) string {
