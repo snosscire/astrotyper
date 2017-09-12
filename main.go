@@ -26,7 +26,7 @@ var (
 
 	currentWordWidth    int32 = 350
 	currentWordHeight   int32 = 37
-	currentWordFontSize int = 32
+	currentWordFontSize int   = 32
 	currentWordMargin   int32 = 16
 	currentWordPadding  int32 = 5
 	currentWordBorder   int32 = 1
@@ -41,7 +41,7 @@ var (
 	gamePaused          bool
 	gameOver            bool
 	mainMenu            bool
-	
+
 	overlayGameOver *Text
 	overlayScore    *Text
 	overlayLevel    *Text
@@ -51,11 +51,11 @@ var (
 	menuItemQuit    *Text
 	menuLogo        *Text
 
-	hudFontSize     int = 32
+	hudFontSize     int   = 32
 	hudMarginRight  int32 = 16
 	hudMarginBottom int32 = 8
 
-	levelFontSize   int = 92
+	levelFontSize   int     = 92
 	levelTimeToShow float32 = 2500.0
 	levelTimeLeft   float32
 
@@ -411,7 +411,7 @@ func updateFontTexture(text string, font *ttf.Font, texture **sdl.Texture, width
 }
 
 func updateCurrentWordTexture() {
-	updateFontTexture(currentWord + "_",
+	updateFontTexture(currentWord+"_",
 		currentWordFont,
 		&currentWordTexture,
 		&currentWordTextureWidth,

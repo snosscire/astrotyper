@@ -2,33 +2,34 @@ package main
 
 import (
 	"math/rand"
+
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/sdl_image"
 )
 
 var (
-	startNumberOfAsteroids     int = 5
+	startNumberOfAsteroids     int     = 5
 	startDelayBetweenAsteroids float32 = 2000.0
 	startAsteroidVelocity      float32 = 0.1
 	startAsteroidY             float32 = -64.0
-	
-	asteroidsToSpawnIncrement      int = 1
+
+	asteroidsToSpawnIncrement      int     = 1
 	delayBetweenAsteroidsIncrement float32 = -100.0
 	asteroidVelocityIncrement      float32 = 0.01
-	
+
 	asteroidRegularWordColor  sdl.Color = sdl.Color{220, 50, 47, 255}
 	asteroidTargetedWordColor sdl.Color = sdl.Color{133, 153, 0, 255}
 
 	minDelayBetweenAsteroids float32 = 1000.0
 
-	asteroidMinDamage   int = 5
-	asteroidMaxDamage   int = 10
+	asteroidMinDamage   int   = 5
+	asteroidMaxDamage   int   = 10
 	asteroidWordMargin  int32 = 10
 	asteroidWordPadding int32 = 1
 	asteroidWordBorder  int32 = 1
 
 	asteroidTexturePath string = "Resources/asteroid.png"
-	asteroidTexture *sdl.Texture
+	asteroidTexture     *sdl.Texture
 
 	wordList []string
 )
@@ -48,7 +49,7 @@ type Asteroid struct {
 }
 
 type AsteroidNotDestroyed func(int)
-type NextLevel            func(int)
+type NextLevel func(int)
 
 type Game struct {
 	asteroids                  []*Asteroid
@@ -89,7 +90,7 @@ func (asteroid *Asteroid) Destroy() {
 	asteroid.explosion = NewExplosionParticleEffect(asteroid.x, asteroid.y)
 }
 
-func (asteroid *Asteroid) updateWordTexture(	) {
+func (asteroid *Asteroid) updateWordTexture() {
 	color := asteroidRegularWordColor
 	if asteroid.targeted {
 		color = asteroidTargetedWordColor
@@ -122,7 +123,7 @@ func (asteroid *Asteroid) IsAlive() bool {
 
 func (asteroid *Asteroid) Update(deltaTime float32) {
 	if asteroid.alive {
-		asteroid.y += (asteroid.velocity * deltaTime);
+		asteroid.y += (asteroid.velocity * deltaTime)
 		if asteroid.y > float32(ScreenHeight) {
 			asteroid.alive = false
 		}
@@ -132,7 +133,7 @@ func (asteroid *Asteroid) Update(deltaTime float32) {
 func (asteroid *Asteroid) Draw(renderer *sdl.Renderer) {
 	if asteroid.x < -64.0 || asteroid.x > float32(ScreenWidth) ||
 		asteroid.y < -64.0 || asteroid.y > float32(ScreenHeight) {
-		return;
+		return
 	}
 	asteroid.rectangle.X = int32(asteroid.x)
 	asteroid.rectangle.Y = int32(asteroid.y)
@@ -204,7 +205,7 @@ func (game *Game) GetMatchingAsteroid(firstCharacter string) *Asteroid {
 }
 
 func (game *Game) spawnNextAsteroid() {
-	x := float32(rand.Intn(int(ScreenWidth)-512)+64)
+	x := float32(rand.Intn(int(ScreenWidth)-512) + 64)
 	asteroid := NewAsteroid(x, startAsteroidY, game.asteroidVelocity, game.level)
 	game.asteroids = append(game.asteroids, asteroid)
 	game.asteroidsLeftToSpawn--
@@ -231,7 +232,7 @@ func (game *Game) Update(deltaTime float32) {
 		game.timeUntilNextAsteroidSpawn -= deltaTime
 		if game.timeUntilNextAsteroidSpawn <= 0.0 {
 			game.spawnNextAsteroid()
-		
+
 			var leftOverTime float32 = 0.0
 			if game.timeUntilNextAsteroidSpawn < 0.0 {
 				leftOverTime = game.timeUntilNextAsteroidSpawn
@@ -239,7 +240,7 @@ func (game *Game) Update(deltaTime float32) {
 			game.timeUntilNextAsteroidSpawn = game.delayBetweenAsteroids + leftOverTime
 		}
 	}
-	
+
 	allAsteroidsDead := true
 	for _, asteroid := range game.asteroids {
 		if asteroid.IsAlive() {
@@ -257,7 +258,7 @@ func (game *Game) Update(deltaTime float32) {
 			}
 		}
 	}
-	
+
 	if allAsteroidsDead && game.asteroidsLeftToSpawn <= 0 {
 		game.goToNextLevel()
 	}
@@ -347,6 +348,6 @@ func randomWord(level int) string {
 		level = 20
 	}
 	max := len(wordList) - 1
-	random := rand.Intn(max - level) + level
+	random := rand.Intn(max-level) + level
 	return wordList[random]
 }

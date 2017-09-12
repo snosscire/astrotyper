@@ -29,32 +29,32 @@ var (
 	jetBeamParticleEffectOrangeParticleGreen        uint8   = 160
 	jetBeamParticleEffectOrangeParticleBlue         uint8   = 40
 
-	explosionParticleEffectWhiteParticles  int = 500
-	explosionParticleEffectYellowParticles int = 1000
-	explosionParticleEffectOrangeParticles int = 2000
+	explosionParticleEffectWhiteParticles  int   = 500
+	explosionParticleEffectYellowParticles int   = 1000
+	explosionParticleEffectOrangeParticles int   = 2000
 	explosionParticleEffectParticleWidth   int32 = 8
 	explosionParticleEffectParticleHeight  int32 = 8
 
 	explosionParticleEffectWhiteParticleAliveTime   float32 = 250.0
-	explosionParticleEffectWhiteParticleRed         uint8 = 255
-	explosionParticleEffectWhiteParticleGreen       uint8 = 255
-	explosionParticleEffectWhiteParticleBlue        uint8 = 255
-	explosionParticleEffectWhiteParticleMinVelocity int = -8
-	explosionParticleEffectWhiteParticleMaxVelocity int = 8
+	explosionParticleEffectWhiteParticleRed         uint8   = 255
+	explosionParticleEffectWhiteParticleGreen       uint8   = 255
+	explosionParticleEffectWhiteParticleBlue        uint8   = 255
+	explosionParticleEffectWhiteParticleMinVelocity int     = -8
+	explosionParticleEffectWhiteParticleMaxVelocity int     = 8
 
 	explosionParticleEffectYellowParticleAliveTime   float32 = 250.0
-	explosionParticleEffectYellowParticleRed         uint8 = 255
-	explosionParticleEffectYellowParticleGreen       uint8 = 255
-	explosionParticleEffectYellowParticleBlue        uint8 = 155
-	explosionParticleEffectYellowParticleMinVelocity int = -12
-	explosionParticleEffectYellowParticleMaxVelocity int = 12
+	explosionParticleEffectYellowParticleRed         uint8   = 255
+	explosionParticleEffectYellowParticleGreen       uint8   = 255
+	explosionParticleEffectYellowParticleBlue        uint8   = 155
+	explosionParticleEffectYellowParticleMinVelocity int     = -12
+	explosionParticleEffectYellowParticleMaxVelocity int     = 12
 
 	explosionParticleEffectOrangeParticleAliveTime   float32 = 250.0
-	explosionParticleEffectOrangeParticleRed         uint8 = 255
-	explosionParticleEffectOrangeParticleGreen       uint8 = 160
-	explosionParticleEffectOrangeParticleBlue        uint8 = 40
-	explosionParticleEffectOrangeParticleMinVelocity int = -16
-	explosionParticleEffectOrangeParticleMaxVelocity int = 16
+	explosionParticleEffectOrangeParticleRed         uint8   = 255
+	explosionParticleEffectOrangeParticleGreen       uint8   = 160
+	explosionParticleEffectOrangeParticleBlue        uint8   = 40
+	explosionParticleEffectOrangeParticleMinVelocity int     = -16
+	explosionParticleEffectOrangeParticleMaxVelocity int     = 16
 )
 
 type Particle struct {
@@ -228,13 +228,13 @@ func NewExplosionParticleEffect(x, y float32) *ExplosionParticleEffect {
 }
 
 func (explosion *ExplosionParticleEffect) randomVelocity(min int, max int) float32 {
-	random := rand.Intn(max - min) + min
+	random := rand.Intn(max-min) + min
 	velocity := float32(random) / 100.0
 	return velocity
 }
 
 func (explosion *ExplosionParticleEffect) randomPosition(min int, max int) float32 {
-	random := rand.Intn(max - min) + min
+	random := rand.Intn(max-min) + min
 	position := float32(random)
 	return position
 }

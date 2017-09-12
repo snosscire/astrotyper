@@ -19,7 +19,7 @@ func NewText(fontPath string, fontSize int) *Text {
 		panic(err)
 		return nil
 	}
-	text.font = font;
+	text.font = font
 	return text
 }
 

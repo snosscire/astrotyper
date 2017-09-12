@@ -6,13 +6,13 @@ import (
 )
 
 var (
-	playerStartHealth    int = 100
+	playerStartHealth    int    = 100
 	playerTexturePath    string = "resources/player.png"
-	playerTextureWidth   int32 = 64
-	playerTextureHeight  int32 = 64
-	playerOffsetY        int32 = -192
-	playerJetBeamOffsetX int32 = 8
-	playerJetBeamOffsetY int32 = 48
+	playerTextureWidth   int32  = 64
+	playerTextureHeight  int32  = 64
+	playerOffsetY        int32  = -192
+	playerJetBeamOffsetX int32  = 8
+	playerJetBeamOffsetY int32  = 48
 )
 
 type Player struct {
@@ -30,8 +30,8 @@ func NewPlayer(renderer *sdl.Renderer) *Player {
 	player := &Player{
 		playerStartHealth,
 		sdl.Rect{
-			(ScreenWidth/2)-(playerTextureWidth/2),
-			ScreenHeight+playerOffsetY,
+			(ScreenWidth / 2) - (playerTextureWidth / 2),
+			ScreenHeight + playerOffsetY,
 			playerTextureWidth,
 			playerTextureHeight,
 		},
@@ -66,4 +66,3 @@ func (player *Player) Draw(renderer *sdl.Renderer) {
 func (player *Player) Update(deltaTime float32) {
 	player.jetBeam.Update(deltaTime)
 }
-

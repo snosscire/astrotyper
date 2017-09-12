@@ -2,6 +2,7 @@ package main
 
 import (
 	"math/rand"
+
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -34,7 +35,7 @@ func NewStar(width int32, height int32, velocity float32) *Star {
 }
 
 func (star *Star) Update(deltaTime float32) {
-	star.y += (star.velocity * deltaTime);
+	star.y += (star.velocity * deltaTime)
 	if star.y > float32(ScreenHeight) {
 		star.y = -1.0
 		star.x = float32(rand.Intn(int(ScreenWidth)))
@@ -44,7 +45,7 @@ func (star *Star) Update(deltaTime float32) {
 func (star *Star) Draw(renderer *sdl.Renderer) {
 	if star.x < 0.0 || star.x > float32(ScreenWidth) ||
 		star.y < 0.0 || star.y > float32(ScreenHeight) {
-		return;
+		return
 	}
 	star.rectangle.X = int32(star.x)
 	star.rectangle.Y = int32(star.y)
@@ -65,10 +66,9 @@ func NewBackground(numberOfStars uint,
 		star := NewStar(starWidth, starHeight, starVelocity)
 		background.stars = append(background.stars, star)
 	}
-	
+
 	return background
 }
-
 
 func (background *Background) Update(deltaTime float32) {
 	for _, star := range background.stars {
@@ -81,4 +81,3 @@ func (background *Background) Draw(renderer *sdl.Renderer) {
 		star.Draw(renderer)
 	}
 }
-
