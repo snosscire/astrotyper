@@ -28,7 +28,7 @@ var (
 	asteroidWordPadding int32 = 1
 	asteroidWordBorder  int32 = 1
 
-	asteroidTexturePath string = "Resources/asteroid.png"
+	asteroidTexturePath string = "resources/asteroid.png"
 	asteroidTexture     *sdl.Texture
 
 	wordList []string
