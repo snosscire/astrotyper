@@ -30,10 +30,10 @@ func NewPlayer(renderer *sdl.Renderer) *Player {
 	player := &Player{
 		playerStartHealth,
 		sdl.Rect{
-			(ScreenWidth / 2) - (playerTextureWidth / 2),
-			ScreenHeight + playerOffsetY,
-			playerTextureWidth,
-			playerTextureHeight,
+			X: (ScreenWidth / 2) - (playerTextureWidth / 2),
+			Y: ScreenHeight + playerOffsetY,
+			W: playerTextureWidth,
+			H: playerTextureHeight,
 		},
 		texture,
 		NewJetBeamParticleEffect(

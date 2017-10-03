@@ -35,7 +35,15 @@ func (text *Text) Update(content string, renderer *sdl.Renderer) {
 	if text.font == nil {
 		return
 	}
-	surface, err := text.font.RenderUTF8_Blended(content, sdl.Color{255, 255, 255, 255})
+	surface, err := text.font.RenderUTF8_Blended(
+		content,
+		sdl.Color{
+			R: 255,
+			G: 255,
+			B: 255,
+			A: 255,
+		},
+	)
 	if err == nil {
 		text.width = surface.W
 		text.height = surface.H
@@ -53,7 +61,12 @@ func (text *Text) Update(content string, renderer *sdl.Renderer) {
 
 func (text *Text) Draw(renderer *sdl.Renderer, x int32, y int32) {
 	if text.texture != nil {
-		dst := &sdl.Rect{x, y, text.width, text.height}
+		dst := &sdl.Rect{
+			X: x,
+			Y: y,
+			W: text.width,
+			H: text.height,
+		}
 		renderer.Copy(text.texture, nil, dst)
 	}
 }

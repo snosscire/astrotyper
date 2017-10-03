@@ -17,8 +17,8 @@ var (
 	delayBetweenAsteroidsIncrement float32 = -100.0
 	asteroidVelocityIncrement      float32 = 0.01
 
-	asteroidRegularWordColor  sdl.Color = sdl.Color{220, 50, 47, 255}
-	asteroidTargetedWordColor sdl.Color = sdl.Color{133, 153, 0, 255}
+	asteroidRegularWordColor  sdl.Color = sdl.Color{R: 220, G: 50, B: 47, A: 255}
+	asteroidTargetedWordColor sdl.Color = sdl.Color{R: 133, G: 153, B: 0, A: 255}
 
 	minDelayBetweenAsteroids float32 = 1000.0
 
@@ -166,10 +166,29 @@ func (asteroid *Asteroid) Draw(renderer *sdl.Renderer) {
 			borderColor = asteroidTargetedWordColor
 		}
 		renderer.SetDrawColor(borderColor.R, borderColor.G, borderColor.B, 255)
-		renderer.FillRect(&sdl.Rect{borderX, borderY, borderW, borderH})
+		renderer.FillRect(&sdl.Rect{
+			X: borderX,
+			Y: borderY,
+			W: borderW,
+			H: borderH,
+		})
 		renderer.SetDrawColor(0, 43, 54, 255)
-		renderer.FillRect(&sdl.Rect{bgX, bgY, bgW, bgH})
-		renderer.Copy(asteroid.wordTexture, nil, &sdl.Rect{wordX, wordY, asteroid.wordTextureWidth, asteroid.wordTextureHeight})
+		renderer.FillRect(&sdl.Rect{
+			X: bgX,
+			Y: bgY,
+			W: bgW,
+			H: bgH,
+		})
+		renderer.Copy(
+			asteroid.wordTexture,
+			nil,
+			&sdl.Rect{
+				X: wordX,
+				Y: wordY,
+				W: asteroid.wordTextureWidth,
+				H: asteroid.wordTextureHeight,
+			},
+		)
 	}
 }
 

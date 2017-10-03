@@ -22,10 +22,10 @@ func NewStar(width int32, height int32, velocity float32) *Star {
 	y := float32(rand.Intn(int(ScreenHeight)))
 	star := &Star{
 		sdl.Rect{
-			0,
-			0,
-			width,
-			height,
+			X: 0,
+			Y: 0,
+			W: width,
+			H: height,
 		},
 		x,
 		y,
