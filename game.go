@@ -32,10 +32,16 @@ var (
 	asteroid2TexturePath string = "resources/asteroid2.png"
 	asteroid3TexturePath string = "resources/asteroid3.png"
 	asteroid4TexturePath string = "resources/asteroid4.png"
-	asteroidTextures     []*sdl.Texture
+	asteroidTextures     []*AsteroidTexture
 
 	wordList []string
 )
+
+type AsteroidTexture struct {
+	Texture *sdl.Texture
+	Width   int32
+	Height  int32
+}
 
 type Asteroid struct {
 	rectangle         sdl.Rect
@@ -45,7 +51,7 @@ type Asteroid struct {
 	x                 float32
 	y                 float32
 	velocity          float32
-	texture           *sdl.Texture
+	texture           *AsteroidTexture
 	word              string
 	wordTexture       *sdl.Texture
 	wordTextureWidth  int32
@@ -156,15 +162,15 @@ func (asteroid *Asteroid) Draw(renderer *sdl.Renderer) {
 			return
 		}
 	}
-	if asteroid.x < -64.0 || asteroid.x > float32(ScreenWidth) ||
-		asteroid.y < -64.0 || asteroid.y > float32(ScreenHeight) {
+	if asteroid.x < float32(-asteroid.texture.Width) || asteroid.x > float32(ScreenWidth) ||
+		asteroid.y < float32(-asteroid.texture.Height) || asteroid.y > float32(ScreenHeight) {
 		return
 	}
 	asteroid.rectangle.X = int32(asteroid.x)
 	asteroid.rectangle.Y = int32(asteroid.y)
-	asteroid.rectangle.W = 64
-	asteroid.rectangle.H = 64
-	renderer.Copy(asteroid.texture, nil, &asteroid.rectangle)
+	asteroid.rectangle.W = asteroid.texture.Width
+	asteroid.rectangle.H = asteroid.texture.Height
+	renderer.Copy(asteroid.texture.Texture, nil, &asteroid.rectangle)
 
 	if asteroid.wordTexture != nil {
 		var wordX, wordY int32
@@ -385,7 +391,15 @@ func loadAsteroidTextures() error {
 		asteroid4TexturePath,
 	}
 	for _, texturePath := range texturePaths {
-		texture, err := img.LoadTexture(applicationRenderer, texturePath)
+		surface, err := img.Load(texturePath)
+		if err != nil {
+			return err
+		}
+		defer surface.Free()
+		texture := new(AsteroidTexture)
+		texture.Width = surface.W
+		texture.Height = surface.H
+		texture.Texture, err = applicationRenderer.CreateTextureFromSurface(surface)
 		if err != nil {
 			return err
 		}
@@ -394,7 +408,7 @@ func loadAsteroidTextures() error {
 	return nil
 }
 
-func randomAsteroidTexture() *sdl.Texture {
+func randomAsteroidTexture() *AsteroidTexture {
 	max := len(asteroidTextures) - 1
 	random := rand.Intn(max)
 	return asteroidTextures[random]
