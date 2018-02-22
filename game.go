@@ -40,6 +40,7 @@ var (
 type Asteroid struct {
 	rectangle         sdl.Rect
 	alive             bool
+	destroyed         bool
 	targeted          bool
 	x                 float32
 	y                 float32
@@ -70,6 +71,7 @@ type Game struct {
 func NewAsteroid(x, y, velocity float32, level int) *Asteroid {
 	asteroid := &Asteroid{}
 	asteroid.alive = true
+	asteroid.destroyed = false
 	asteroid.x = x
 	asteroid.y = y
 	asteroid.velocity = velocity
@@ -92,6 +94,7 @@ func (asteroid *Asteroid) Damage() int {
 }
 func (asteroid *Asteroid) Destroy() {
 	asteroid.alive = false
+	asteroid.destroyed = true
 	asteroid.explosion = NewExplosionParticleEffect(asteroid.x, asteroid.y)
 }
 
@@ -127,6 +130,10 @@ func (asteroid *Asteroid) IsAlive() bool {
 		return asteroid.explosion.IsAlive()
 	}
 	return asteroid.alive
+}
+
+func (asteroid *Asteroid) WasDestroyed() bool {
+	return asteroid.destroyed
 }
 
 func (asteroid *Asteroid) Update(deltaTime float32) {
@@ -283,7 +290,7 @@ func (game *Game) Update(deltaTime float32) {
 			asteroid.Update(deltaTime)
 			if asteroid.IsAlive() {
 				allAsteroidsDead = false
-			} else {
+			} else if !asteroid.WasDestroyed() {
 				if game.asteroidNotDestroyed != nil {
 					game.asteroidNotDestroyed(asteroid.Damage())
 				}
