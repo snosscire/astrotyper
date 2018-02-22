@@ -208,9 +208,6 @@ func (jetBeam *JetBeamParticleEffect) Draw(renderer *sdl.Renderer) {
 func NewExplosionParticleEffect(x, y float32) *ExplosionParticleEffect {
 	effect := &ExplosionParticleEffect{}
 
-	x += 32
-	y += 32
-
 	for i := 1; i <= explosionParticleEffectWhiteParticles; i++ {
 		particle := effect.newWhiteParticle(x, y)
 		effect.whiteParticles = append(effect.whiteParticles, particle)

@@ -88,6 +88,14 @@ func NewAsteroid(x, y, velocity float32, level int) *Asteroid {
 	return asteroid
 }
 
+func (asteroid *Asteroid) topX() int32 {
+	return int32(asteroid.x) - (asteroid.texture.Width / 2)
+}
+
+func (asteroid *Asteroid) topY() int32 {
+	return int32(asteroid.y) - (asteroid.texture.Height / 2)
+}
+
 func (asteroid *Asteroid) Word() string {
 	return asteroid.word
 }
@@ -145,7 +153,7 @@ func (asteroid *Asteroid) WasDestroyed() bool {
 func (asteroid *Asteroid) Update(deltaTime float32) {
 	if asteroid.alive {
 		asteroid.y += (asteroid.velocity * deltaTime)
-		if asteroid.y > float32(ScreenHeight) {
+		if asteroid.topY() > ScreenHeight {
 			asteroid.alive = false
 		}
 	} else {
@@ -162,12 +170,9 @@ func (asteroid *Asteroid) Draw(renderer *sdl.Renderer) {
 			return
 		}
 	}
-	if asteroid.x < float32(-asteroid.texture.Width) || asteroid.x > float32(ScreenWidth) ||
-		asteroid.y < float32(-asteroid.texture.Height) || asteroid.y > float32(ScreenHeight) {
-		return
-	}
-	asteroid.rectangle.X = int32(asteroid.x)
-	asteroid.rectangle.Y = int32(asteroid.y)
+
+	asteroid.rectangle.X = asteroid.topX()
+	asteroid.rectangle.Y = asteroid.topY()
 	asteroid.rectangle.W = asteroid.texture.Width
 	asteroid.rectangle.H = asteroid.texture.Height
 	renderer.Copy(asteroid.texture.Texture, nil, &asteroid.rectangle)
