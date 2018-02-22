@@ -202,7 +202,7 @@ func main() {
 	var windowFlags uint32 = sdl.WINDOW_FULLSCREEN_DESKTOP
 
 	window, err := sdl.CreateWindow("Astrotyper", sdl.WINDOWPOS_UNDEFINED,
-		sdl.WINDOWPOS_UNDEFINED, ScreenWidth, ScreenHeight, windowFlags)
+		sdl.WINDOWPOS_UNDEFINED, 0, 0, windowFlags)
 	if err != nil {
 		panic(err)
 	}
@@ -213,6 +213,11 @@ func main() {
 		panic(err)
 	}
 	defer applicationRenderer.Destroy()
+
+	ScreenWidth, ScreenHeight, err = applicationRenderer.GetOutputSize()
+	if err != nil {
+		panic(err)
+	}
 
 	background1 := NewBackground(100, 1, 1, 0.2)
 	background2 := NewBackground(10, 1, 1, 0.3)
