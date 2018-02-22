@@ -86,7 +86,6 @@ func handleEvents() {
 							currentAsteroid.Untarget()
 							currentAsteroid = nil
 						}
-						fmt.Printf("current word: %s\n", currentWord)
 						updateCurrentWordTexture()
 					} else {
 						mainMenu = true
@@ -97,7 +96,6 @@ func handleEvents() {
 				if len(currentWord) > 0 {
 					index := len(currentWord) - 1
 					currentWord = currentWord[:index]
-					fmt.Printf("current word: %s\n", currentWord)
 					updateCurrentWordTexture()
 				}
 			} else if t.Keysym.Sym == sdl.K_UP {
@@ -141,7 +139,6 @@ func handleEvents() {
 							currentAsteroid = asteroid
 							currentAsteroid.Target()
 							currentWord += character
-							fmt.Printf("current word: %s\n", currentWord)
 							updateCurrentWordTexture()
 						}
 					} else {
@@ -152,7 +149,6 @@ func handleEvents() {
 							nextValid := string(word[currentWordLen])
 							if character == nextValid {
 								currentWord += character
-								fmt.Printf("current word: %s\n", currentWord)
 								updateCurrentWordTexture()
 								if len(currentWord) == wordLen {
 									currentAsteroid.Destroy()
