@@ -123,6 +123,9 @@ func (asteroid *Asteroid) Untarget() {
 }
 
 func (asteroid *Asteroid) IsAlive() bool {
+	if !asteroid.alive && asteroid.explosion != nil {
+		return asteroid.explosion.IsAlive()
+	}
 	return asteroid.alive
 }
 
@@ -132,10 +135,20 @@ func (asteroid *Asteroid) Update(deltaTime float32) {
 		if asteroid.y > float32(ScreenHeight) {
 			asteroid.alive = false
 		}
+	} else {
+		if asteroid.explosion != nil {
+			asteroid.explosion.Update(deltaTime)
+		}
 	}
 }
 
 func (asteroid *Asteroid) Draw(renderer *sdl.Renderer) {
+	if !asteroid.alive {
+		if asteroid.explosion != nil {
+			asteroid.explosion.Draw(renderer)
+			return
+		}
+	}
 	if asteroid.x < -64.0 || asteroid.x > float32(ScreenWidth) ||
 		asteroid.y < -64.0 || asteroid.y > float32(ScreenHeight) {
 		return
@@ -275,10 +288,6 @@ func (game *Game) Update(deltaTime float32) {
 					game.asteroidNotDestroyed(asteroid.Damage())
 				}
 			}
-		} else {
-			if asteroid.explosion != nil {
-				asteroid.explosion.Update(deltaTime)
-			}
 		}
 	}
 
@@ -291,10 +300,6 @@ func (game *Game) Draw(renderer *sdl.Renderer) {
 	for _, asteroid := range game.asteroids {
 		if asteroid.IsAlive() {
 			asteroid.Draw(renderer)
-		} else {
-			if asteroid.explosion != nil {
-				asteroid.explosion.Draw(renderer)
-			}
 		}
 	}
 }

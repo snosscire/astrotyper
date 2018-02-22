@@ -330,3 +330,22 @@ func (explosion *ExplosionParticleEffect) Draw(renderer *sdl.Renderer) {
 		}
 	}
 }
+
+func (explosion *ExplosionParticleEffect) IsAlive() bool {
+	for _, particle := range explosion.orangeParticles {
+		if particle.IsAlive() {
+			return true
+		}
+	}
+	for _, particle := range explosion.yellowParticles {
+		if particle.IsAlive() {
+			return true
+		}
+	}
+	for _, particle := range explosion.whiteParticles {
+		if particle.IsAlive() {
+			return true
+		}
+	}
+	return false
+}
