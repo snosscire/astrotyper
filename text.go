@@ -35,7 +35,7 @@ func (text *Text) Update(content string, renderer *sdl.Renderer) {
 	if text.font == nil {
 		return
 	}
-	surface, err := text.font.RenderUTF8_Blended(
+	surface, err := text.font.RenderUTF8Blended(
 		content,
 		sdl.Color{
 			R: 255,

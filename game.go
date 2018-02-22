@@ -100,7 +100,7 @@ func (asteroid *Asteroid) updateWordTexture() {
 	if asteroid.targeted {
 		color = asteroidTargetedWordColor
 	}
-	surface, err := asteroidFont.RenderUTF8_Blended(asteroid.word, color)
+	surface, err := asteroidFont.RenderUTF8Blended(asteroid.word, color)
 	if err == nil {
 		asteroid.wordTextureWidth = surface.W
 		asteroid.wordTextureHeight = surface.H

@@ -72,7 +72,10 @@ func handleEvents() {
 		switch t := event.(type) {
 		case *sdl.QuitEvent:
 			applicationRunning = false
-		case *sdl.KeyDownEvent:
+		case *sdl.KeyboardEvent:
+			if t.Type == sdl.KEYUP {
+				continue
+			}
 			if t.Keysym.Sym == sdl.K_ESCAPE {
 				if mainMenu {
 					applicationRunning = false
@@ -199,7 +202,7 @@ func main() {
 	var windowFlags uint32 = sdl.WINDOW_FULLSCREEN_DESKTOP
 
 	window, err := sdl.CreateWindow("Astrotyper", sdl.WINDOWPOS_UNDEFINED,
-		sdl.WINDOWPOS_UNDEFINED, int(ScreenWidth), int(ScreenHeight), windowFlags)
+		sdl.WINDOWPOS_UNDEFINED, ScreenWidth, ScreenHeight, windowFlags)
 	if err != nil {
 		panic(err)
 	}
@@ -396,7 +399,7 @@ func updateFontTexture(text string, font *ttf.Font, texture **sdl.Texture, width
 		*width = 0
 		*height = 0
 	}
-	surface, err := font.RenderUTF8_Blended(text, color)
+	surface, err := font.RenderUTF8Blended(text, color)
 	if err == nil {
 		w := surface.W
 		h := surface.H
