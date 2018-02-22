@@ -217,7 +217,6 @@ func main() {
 
 	background1 := NewBackground(100, 1, 1, 0.2)
 	background2 := NewBackground(10, 1, 1, 0.3)
-	background3 := NewBackground(1, 4, 4, 0.4)
 
 	createMainMenu()
 
@@ -238,7 +237,6 @@ func main() {
 		if !gameOver {
 			background1.Update(deltaTime)
 			background2.Update(deltaTime)
-			background3.Update(deltaTime)
 		}
 
 		if !mainMenu {
@@ -253,7 +251,6 @@ func main() {
 
 		background1.Draw(applicationRenderer)
 		background2.Draw(applicationRenderer)
-		background3.Draw(applicationRenderer)
 
 		if !mainMenu {
 			currentPlayer.Draw(applicationRenderer)
