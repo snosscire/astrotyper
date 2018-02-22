@@ -29,9 +29,9 @@ var (
 	jetBeamParticleEffectOrangeParticleGreen        uint8   = 160
 	jetBeamParticleEffectOrangeParticleBlue         uint8   = 40
 
-	explosionParticleEffectWhiteParticles  int   = 500
-	explosionParticleEffectYellowParticles int   = 1000
-	explosionParticleEffectOrangeParticles int   = 2000
+	explosionParticleEffectWhiteParticles  int   = 245
+	explosionParticleEffectYellowParticles int   = 490
+	explosionParticleEffectOrangeParticles int   = 1015
 	explosionParticleEffectParticleWidth   int32 = 8
 	explosionParticleEffectParticleHeight  int32 = 8
 
