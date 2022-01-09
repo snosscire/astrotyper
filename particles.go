@@ -98,7 +98,7 @@ func (particle *Particle) Reset() {
 }
 
 func (particle *Particle) Update(deltaTime float32) {
-	if particle.alive == false {
+	if !particle.alive {
 		return
 	}
 	particle.timeLeft -= deltaTime
@@ -182,7 +182,7 @@ func (jetBeam *JetBeamParticleEffect) newParticle(x float32, y float32,
 
 func (jetBeam *JetBeamParticleEffect) updateParticle(particle *Particle, deltaTime float32) {
 	particle.Update(deltaTime)
-	if particle.IsAlive() == false {
+	if !particle.IsAlive() {
 		particle.Reset()
 	}
 }
