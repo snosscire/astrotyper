@@ -60,8 +60,7 @@ func NewBackground(numberOfStars uint,
 
 	background := &Background{}
 
-	var i uint
-	i = 1
+	var i uint = 1
 	for ; i <= numberOfStars; i++ {
 		star := NewStar(starWidth, starHeight, starVelocity)
 		background.stars = append(background.stars, star)
