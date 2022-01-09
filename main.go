@@ -417,7 +417,11 @@ func updateCurrentWordTexture() {
 		&currentWordTexture,
 		&currentWordTextureWidth,
 		&currentWordTextureHeight,
-		sdl.Color{238, 232, 213, 255})
+		sdl.Color{
+			R: 238,
+			G: 232,
+			B: 213,
+			A: 255})
 }
 
 func drawCurrentWord() {
