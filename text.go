@@ -17,7 +17,6 @@ func NewText(fontPath string, fontSize int) *Text {
 	font, err := ttf.OpenFont(fontPath, fontSize)
 	if err != nil {
 		panic(err)
-		return nil
 	}
 	text.font = font
 	return text
