@@ -132,7 +132,7 @@ func handleEvents() {
 				}
 				key := int(t.Keysym.Sym)
 				if key >= 97 && key <= 122 {
-					character := string(key)
+					character := string(rune(key))
 					if len(currentWord) == 0 {
 						asteroid := currentGame.GetMatchingAsteroid(character)
 						if asteroid != nil {
