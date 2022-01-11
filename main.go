@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/veandco/go-sdl2/img"
+	"github.com/veandco/go-sdl2/mix"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
@@ -204,6 +205,7 @@ func main() {
 	sdl.Init(sdl.INIT_EVERYTHING)
 	img.Init(img.INIT_PNG)
 	ttf.Init()
+	mix.Init(mix.INIT_OGG)
 
 	var windowFlags uint32 = sdl.WINDOW_FULLSCREEN_DESKTOP
 
@@ -224,6 +226,18 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	err = mix.OpenAudio(mix.DEFAULT_FREQUENCY, mix.DEFAULT_FORMAT, mix.DEFAULT_CHANNELS, mix.DEFAULT_CHUNKSIZE)
+	if err != nil {
+		panic(err)
+	}
+
+	music, err := mix.LoadMUS("resources/music/ObservingTheStar.ogg")
+	if err != nil {
+		panic(err)
+	}
+
+	music.Play(-1)
 
 	background1 := NewBackground(100, 1, 1, 0.2)
 	background2 := NewBackground(10, 1, 1, 0.3)
@@ -283,6 +297,10 @@ func main() {
 
 	//levelFont.Close()
 
+	music.Free()
+	mix.CloseAudio()
+
+	mix.Quit()
 	ttf.Quit()
 	img.Quit()
 	sdl.Quit()
