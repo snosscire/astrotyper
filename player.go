@@ -6,13 +6,17 @@ import (
 )
 
 var (
-	playerStartHealth    int    = 100
-	playerTexturePath    string = "resources/player.png"
-	playerTextureWidth   int32  = 64
-	playerTextureHeight  int32  = 64
-	playerOffsetY        int32  = -192
-	playerJetBeamOffsetX int32  = 8
-	playerJetBeamOffsetY int32  = 48
+	playerStartHealth            int    = 100
+	playerTexturePath            string = "resources/player.png"
+	playerTextureWidth           int32  = 64
+	playerTextureHeight          int32  = 64
+	playerOffsetY                int32  = -192
+	playerJetBeamOffsetX         int32  = 8
+	playerJetBeamOffsetY         int32  = 48
+	playerJetBeamWidth           int    = 10
+	playerJetBeamHeight          int    = 16
+	playerJetBeamYellowParticles int    = 20
+	playerJetBeamOrangeParticles int    = 40
 )
 
 type Player struct {
@@ -38,7 +42,11 @@ func NewPlayer(renderer *sdl.Renderer) *Player {
 		texture,
 		NewJetBeamParticleEffect(
 			float32((ScreenWidth/2)-(playerTextureWidth/4)+playerJetBeamOffsetX),
-			float32(ScreenHeight+playerOffsetY+playerJetBeamOffsetY)),
+			float32(ScreenHeight+playerOffsetY+playerJetBeamOffsetY),
+			playerJetBeamWidth,
+			playerJetBeamHeight,
+			playerJetBeamYellowParticles,
+			playerJetBeamOrangeParticles),
 	}
 	return player
 }

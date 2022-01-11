@@ -7,22 +7,17 @@ import (
 )
 
 var (
-	jetBeamParticleEffectWidth  int = 10
-	jetBeamParticleEffectHeight int = 16
-
 	jetBeamParticleEffectParticleWidth     int32   = 8
 	jetBeamParticleEffectParticleHeight    int32   = 8
 	jetBeamParticleEffectParticleVelocityX float32 = 0.0
 	jetBeamParticleEffectParticleVelocityY float32 = 0.2
 
-	jetBeamParticleEffectYellowParticles            int     = 20
 	jetBeamParticleEffectYellowParticleMinAliveTime float32 = 50
 	jetBeamParticleEffectYellowParticleMaxAliveTime float32 = 100
 	jetBeamParticleEffectYellowParticleRed          uint8   = 255
 	jetBeamParticleEffectYellowParticleGreen        uint8   = 255
 	jetBeamParticleEffectYellowParticleBlue         uint8   = 115
 
-	jetBeamParticleEffectOrangeParticles            int     = 40
 	jetBeamParticleEffectOrangeParticleMinAliveTime float32 = 100
 	jetBeamParticleEffectOrangeParticleMaxAliveTime float32 = 150
 	jetBeamParticleEffectOrangeParticleRed          uint8   = 255
@@ -76,6 +71,8 @@ type Particle struct {
 type JetBeamParticleEffect struct {
 	originX         float32
 	originY         float32
+	effectWidth     int
+	effectHeight    int
 	yellowParticles []*Particle
 	orangeParticles []*Particle
 }
@@ -117,16 +114,18 @@ func (particle *Particle) Draw(renderer *sdl.Renderer) {
 	renderer.FillRect(&particle.rectangle)
 }
 
-func NewJetBeamParticleEffect(x float32, y float32) *JetBeamParticleEffect {
+func NewJetBeamParticleEffect(x float32, y float32, w, h, yellow, orange int) *JetBeamParticleEffect {
 	jetBeam := &JetBeamParticleEffect{}
 	jetBeam.originX = x
 	jetBeam.originY = y
+	jetBeam.effectWidth = w
+	jetBeam.effectHeight = h
 
-	for i := 1; i <= jetBeamParticleEffectYellowParticles; i++ {
+	for i := 1; i <= yellow; i++ {
 		particle := jetBeam.newYellowParticle(jetBeam.originX, jetBeam.originY)
 		jetBeam.yellowParticles = append(jetBeam.yellowParticles, particle)
 	}
-	for i := 1; i <= jetBeamParticleEffectOrangeParticles; i++ {
+	for i := 1; i <= orange; i++ {
 		particle := jetBeam.newOrangeParticle(jetBeam.originX, jetBeam.originY)
 		jetBeam.orangeParticles = append(jetBeam.orangeParticles, particle)
 	}
@@ -155,8 +154,8 @@ func (jetBeam *JetBeamParticleEffect) newOrangeParticle(x float32, y float32) *P
 func (jetBeam *JetBeamParticleEffect) newParticle(x float32, y float32,
 	minAlive float32, maxAlive float32, red uint8, green uint8, blue uint8) *Particle {
 
-	particleX := float32(rand.Intn(jetBeamParticleEffectWidth)) + x
-	particleY := float32(rand.Intn(jetBeamParticleEffectHeight)) + y
+	particleX := float32(rand.Intn(jetBeam.effectWidth)) + x
+	particleY := float32(rand.Intn(jetBeam.effectHeight)) + y
 	aliveTime := float32(rand.Intn(int(maxAlive-minAlive))) + minAlive
 
 	particle := &Particle{}

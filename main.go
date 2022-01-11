@@ -20,7 +20,6 @@ var (
 	asteroidFontSize int = 20
 	asteroidFont     *ttf.Font
 
-	menuLogoFontSize int = 128
 	menuItemFontSize int = 42
 	menuItemSelected int = 0
 
@@ -49,7 +48,18 @@ var (
 	hudScore        *Text
 	menuItemStart   *Text
 	menuItemQuit    *Text
-	menuLogo        *Text
+
+	menuLogoTexture                *sdl.Texture
+	menuLogoTextureWidth           int32
+	menuLogoTextureHeight          int32
+	menuLogoOffsetY                int32 = 128
+	menuLogoJetBeam                *JetBeamParticleEffect
+	menuLogoJetBeamOffsetX         int32 = 36
+	menuLogoJetBeamOffsetY         int32 = -70
+	menuLogoJetBeamWidth           int   = 19
+	menuLogoJetBeamHeight          int   = 22
+	menuLogoJetBeamYellowParticles int   = 40
+	menuLogoJetBeamOrangeParticles int   = 60
 
 	hudFontSize     int   = 32
 	hudMarginRight  int32 = 16
@@ -239,6 +249,10 @@ func main() {
 			background2.Update(deltaTime)
 		}
 
+		if mainMenu {
+			menuLogoJetBeam.Update(deltaTime)
+		}
+
 		if !mainMenu {
 			if !gamePaused && !gameOver {
 				currentPlayer.Update(deltaTime)
@@ -328,9 +342,23 @@ func openFont(path string, size int) *ttf.Font {
 }
 
 func createMainMenu() {
-	if menuLogo == nil {
-		menuLogo = NewText(fontPath, menuLogoFontSize)
-		menuLogo.Update("Astrotyper", applicationRenderer)
+	if menuLogoTexture == nil {
+		var err error
+		menuLogoTexture, err = img.LoadTexture(applicationRenderer, "resources/menu/logo.png")
+		if err != nil {
+			panic(err)
+		}
+		_, _, menuLogoTextureWidth, menuLogoTextureHeight, err = menuLogoTexture.Query()
+		if err != nil {
+			panic(err)
+		}
+		menuLogoJetBeam = NewJetBeamParticleEffect(
+			float32((ScreenWidth/2)-(menuLogoTextureWidth/2)+menuLogoJetBeamOffsetX),
+			float32(menuLogoOffsetY+menuLogoTextureHeight+menuLogoJetBeamOffsetY),
+			menuLogoJetBeamWidth,
+			menuLogoJetBeamHeight,
+			menuLogoJetBeamYellowParticles,
+			menuLogoJetBeamOrangeParticles)
 	}
 	if menuItemStart == nil {
 		menuItemStart = NewText(fontPath, menuItemFontSize)
@@ -351,7 +379,13 @@ func createMainMenu() {
 }
 
 func drawMainMenu() {
-	menuLogo.Draw(applicationRenderer, (ScreenWidth/2)-(menuLogo.Width()/2), 128)
+	menuLogoJetBeam.Draw(applicationRenderer)
+	applicationRenderer.Copy(menuLogoTexture, nil, &sdl.Rect{
+		X: (ScreenWidth / 2) - (menuLogoTextureWidth / 2),
+		Y: menuLogoOffsetY,
+		W: menuLogoTextureWidth,
+		H: menuLogoTextureHeight,
+	})
 	menuItemStart.Draw(applicationRenderer,
 		(ScreenWidth/2)-(menuItemStart.Width()/2),
 		(ScreenHeight/2)-(menuItemStart.Height()))
