@@ -370,13 +370,6 @@ func createMainMenu() {
 		if err != nil {
 			panic(err)
 		}
-		menuLogoJetBeam = NewJetBeamParticleEffect(
-			float32((ScreenWidth/2)-(menuLogoTextureWidth/2)+menuLogoJetBeamOffsetX),
-			float32(menuLogoOffsetY+menuLogoTextureHeight+menuLogoJetBeamOffsetY),
-			menuLogoJetBeamWidth,
-			menuLogoJetBeamHeight,
-			menuLogoJetBeamYellowParticles,
-			menuLogoJetBeamOrangeParticles)
 	}
 	if menuItemStart == nil {
 		menuItemStart = NewText(fontPath, menuItemFontSize)
@@ -394,13 +387,22 @@ func createMainMenu() {
 		menuItemQuitText = "* Quit *"
 	}
 	menuItemQuit.Update(menuItemQuitText, applicationRenderer)
+	if menuLogoJetBeam == nil {
+		menuLogoJetBeam = NewJetBeamParticleEffect(
+			float32((ScreenWidth/2)-(menuLogoTextureWidth/2)+menuLogoJetBeamOffsetX),
+			float32(menuLogoY()+menuLogoTextureHeight+menuLogoJetBeamOffsetY),
+			menuLogoJetBeamWidth,
+			menuLogoJetBeamHeight,
+			menuLogoJetBeamYellowParticles,
+			menuLogoJetBeamOrangeParticles)
+	}
 }
 
 func drawMainMenu() {
 	menuLogoJetBeam.Draw(applicationRenderer)
 	applicationRenderer.Copy(menuLogoTexture, nil, &sdl.Rect{
 		X: (ScreenWidth / 2) - (menuLogoTextureWidth / 2),
-		Y: menuLogoOffsetY,
+		Y: menuLogoY(),
 		W: menuLogoTextureWidth,
 		H: menuLogoTextureHeight,
 	})
@@ -410,6 +412,11 @@ func drawMainMenu() {
 	menuItemQuit.Draw(applicationRenderer,
 		(ScreenWidth/2)-(menuItemQuit.Width()/2),
 		(ScreenHeight/2)+(menuItemStart.Height()))
+}
+
+func menuLogoY() int32 {
+	return (((ScreenHeight / 2) - menuItemStart.Height()) / 2) -
+		(menuLogoTextureHeight / 2)
 }
 
 func drawLevel(deltaTime float32) {
